@@ -115,6 +115,9 @@ function start() {
   // find the height scale that fills the cube budget
   let lo = 0.05, hi = 3;
   for (let it = 0; it < 18; it++) { const m = (lo + hi) / 2, c = lots.reduce((a, l) => a + shell(l, m, null), 0); if (c > BUDGET) hi = m; else lo = m; }
+  // the really tall towers are held down: the two supertalls to 64%, the next tier to 80%
+  const tops = lots.filter((l) => l.type !== 'low' && l.type !== 'court'), hmax = Math.max(...tops.map((l) => l.h));
+  tops.forEach((l) => { if (l.h > hmax * 0.7) l.h *= 0.64; else if (l.h > hmax * 0.48) l.h *= 0.8; });
   const cubes = [];
   lots.forEach((l) => shell(l, lo, cubes));
   const nBuild = cubes.length;
