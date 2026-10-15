@@ -85,13 +85,18 @@ function start() {
   }
   // street trees
   for (let z = -H; z < H; z++) for (let x = -H; x < H; x++) if (at(x, z) === 1 && (x + z) % 3 === 0 && rnd() < 0.2) {
-    if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([a, b]) => at(x + a, z + b) === 0)) tree(x + 0.5, z + 0.5, false);
+    // on the pavement strip just inside the block, never on the road
+    const side = [[1, 0], [-1, 0], [0, 1], [0, -1]].find(([a, b]) => at(x + a, z + b) === 0);
+    if (side) tree(x + 0.5 + side[0] * 0.75, z + 0.5 + side[1] * 0.75, false);
   }
 
   // ---------- building shapes: a height for every column of cubes in a lot
   function heights(l, k) {
     const w = l.X1 - l.X0, d = l.Z1 - l.Z0, hm = new Int16Array(w * d), H0 = Math.max(2, Math.round(l.h * k));
+    // a pavement: buildings step back one cube from any side that faces a street, park or the river
+    const pw = at(l.r[0] - 1, l.r[1]) !== 0, pe = at(l.r[2], l.r[1]) !== 0, pn = at(l.r[0], l.r[1] - 1) !== 0, ps = at(l.r[0], l.r[3]) !== 0;
     for (let j = 0; j < d; j++) for (let i = 0; i < w; i++) {
+      if ((pw && i === 0) || (pe && i === w - 1) || (pn && j === 0) || (ps && j === d - 1)) { hm[j * w + i] = 0; continue; }
       const e = Math.min(i, j, w - 1 - i, d - 1 - j);
       let h = 0;
       if (l.type === 'tower') { const i1 = w > 6 && d > 6 ? 2 : 1; h = e < i1 ? Math.min(l.podium, H0) : e < i1 + 1 && w > 5 && d > 5 ? H0 - 3 : H0; }
@@ -113,7 +118,7 @@ function start() {
         n++;
         if (out) out.push([(l.X0 + i + 0.5) * u, y, (l.Z0 + j + 0.5) * u, l, y < hc - 1 && ((i * 31 + j * 17 + y * 7 + (l.seed * 1000 | 0)) % 23 === 0) ? 3 : 0]);
       }
-      if (l.type === 'court' && hc === 0 && out && ((i + j) % 4 === 0)) tree((l.X0 + i + 0.5) * u, (l.Z0 + j + 0.5) * u, false);
+      if (l.type === 'court' && hc === 0 && out && i > 1 && j > 1 && i < w - 2 && j < d - 2 && ((i + j) % 4 === 0)) tree((l.X0 + i + 0.5) * u, (l.Z0 + j + 0.5) * u, false);
     }
     if (l.type === 'tower' && l.spire && H0 > 18 && w > 3 && d > 3) {
       const cx = l.X0 + Math.floor(w / 2), cz = l.Z0 + Math.floor(d / 2);
@@ -194,6 +199,7 @@ function start() {
   // the city: one mesh for lit materials, one unlit mesh for glowing windows
   const box = new THREE.BoxGeometry(u * 0.92, u * 0.92, u * 0.92);
   const lit = cubes.filter((c) => c[4] !== 3 && c[4] !== 1 && c[4] !== 2), glow = cubes.filter((c) => c[4] === 3), leafy = cubes.filter((c) => c[4] === 1 || c[4] === 2);
+  let paintStreet = null;
   const mat = new THREE.MeshStandardMaterial({ roughness: 0.55, metalness: 0.06 });
   // street level: every cube face reads as four smaller cubes (bevelled 2x2 cells with gaps)
   const fineTex = (() => {
@@ -217,7 +223,8 @@ function start() {
 
   // traffic and boats
   const lanes = [];
-  for (let p = -H; p < H; p += P) lanes.push({ ax: 'x', c: p + 0.5, dir: 1 }, { ax: 'x', c: p + 1.5, dir: -1 }, { ax: 'z', c: p + 0.5, dir: 1 }, { ax: 'z', c: p + 1.5, dir: -1 });
+  // no traffic on the avenue the street camera drives (cross streets keep theirs)
+  for (let p = -H; p < H; p += P) { if (p !== 0) lanes.push({ ax: 'x', c: p + 0.5, dir: 1 }, { ax: 'x', c: p + 1.5, dir: -1 }); lanes.push({ ax: 'z', c: p + 0.5, dir: 1 }, { ax: 'z', c: p + 1.5, dir: -1 }); }
   const CARS = small ? 110 : 320, BOATS = small ? 4 : 9;
   const cars = inst(new THREE.BoxGeometry(0.34, 0.2, 0.34), new THREE.MeshBasicMaterial(), CARS, false);
   const car = Array.from({ length: CARS }, () => ({ l: lanes[rnd() * lanes.length | 0], p: rnd() * N - H, v: 0.015 + rnd() * 0.03 }));
@@ -274,6 +281,7 @@ function start() {
     trees3d.instanceColor.needsUpdate = true; treeMat.emissive.copy(leaf).multiplyScalar(dark ? 0.06 : 0);
     winMat.color.copy(dark ? warm : building.clone().lerp(acc, 0.35));
     fineMat.emissive.copy(mat.emissive); fineWin.color.copy(winMat.color);
+    if (paintStreet) paintStreet(building, bg, dark);
     const pave = raised.clone().lerp(fg, dark ? 0.06 : 0.04), lawn = leaf.clone().lerp(raised, dark ? 0.62 : 0.55), water = acc.clone().lerp(bg, dark ? 0.6 : 0.4);
     flat.forEach(([, , v], i) => tiles.setColorAt(i, v === 1 ? line : v === 2 ? water : v === 3 ? lawn : pave));
     tiles.instanceColor.needsUpdate = true;
@@ -301,10 +309,21 @@ function start() {
   renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
 
   // the street-level route: along the eastbound lane of the road nearest the centre
-  const laneZ = Math.round(0 / P) * P + 0.5, roadFrom = -H * 0.55, roadTo = H * 0.3;
-  let roadX = roadFrom + 6, cutting = 0;
+  const laneZ = Math.round(0 / P) * P + 0.5, roadFrom = -H * 0.62, roadTo = H * 0.62;
+  // the street route stays inside the city: east along one lane, a U-turn, back along the other
+  const seg = roadTo - roadFrom, turn = Math.PI * 0.5, loopLen = 2 * seg + 2 * turn;
+  function route(d) {
+    d = ((d % loopLen) + loopLen) % loopLen;
+    if (d < seg) return [roadFrom + d, laneZ];
+    d -= seg; if (d < turn) { const a = -Math.PI / 2 + d / turn * Math.PI; return [roadTo + Math.cos(a) * 0.5, laneZ + 0.5 + Math.sin(a) * 0.5]; }
+    d -= turn; if (d < seg) return [roadTo - d, laneZ + 1];
+    d -= seg; const a = Math.PI / 2 + d / turn * Math.PI; return [roadFrom + Math.cos(a) * 0.5, laneZ + 0.5 + Math.sin(a) * 0.5];
+  }
+  let roadD = 4;
 
-  const t0 = performance.now() + 200, ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
+  let t0 = performance.now() + (document.documentElement.classList.contains('intro-on') ? 5600 : 200);
+  addEventListener('aai-skip', () => { t0 = performance.now() + 150; });
+  const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
   const del = (cb) => (cb[3] ? cb[3].d / H * 1.5 + cb[3].tone * 0.4 : Math.hypot(cb[0], cb[2]) / H * 1.5 + 0.3) + cb[1] * 0.012;
   const dl = lit.map(del), dg = glow.map(del), dt = leafy.map(del);
   function place(mesh, arr, delays, t) {
@@ -317,25 +336,120 @@ function start() {
   let risen = reduce || !!SHOT;
   place(city, lit, dl, risen ? 99 : 0); place(wins, glow, dg, risen ? 99 : 0); place(trees3d, leafy, dt, risen ? 99 : 0);
 
+  // the street view gets its own build of the buildings along the avenue, with cubes half the size
+  // (a quarter of a tile), the same shapes, only the faces you can see from the road, capped above the frame
+  let sCity = null, sWins = null, sTrees = null, sProps = null, sSignals = null, paintProps = null;
+  if (!small && !SHOT) {
+    const uf = u / 2, CAP = 64, fine = [], fineGlow = [];
+    for (const l of lots) {
+      const zc = (l.r[1] + l.r[3]) / 2;
+      if (l.r[3] < laneZ - 11 || l.r[1] > laneZ + 12 || l.r[2] < roadFrom - 12 || l.r[0] > roadTo + 12) continue;
+      const { hm, w, d } = heights(l, lo), W2 = w * 2, D2 = d * 2, north = zc < laneZ;
+      const fh = (i, j) => (i < 0 || j < 0 || i >= W2 || j >= D2) ? 0 : Math.min(CAP, hm[(j >> 1) * w + (i >> 1)] * 2);
+      for (let j = 0; j < D2; j++) for (let i = 0; i < W2; i++) {
+        const hc = fh(i, j); if (!hc) continue;
+        const hw = fh(i - 1, j), he = fh(i + 1, j), hn = fh(i, j - 1), hs = fh(i, j + 1);
+        for (let y = 0; y < hc; y++) {
+          const roof = y === hc - 1, side = y >= hw || y >= he, toRoad = north ? y >= hs : y >= hn;
+          if (!(roof || side || toRoad)) continue;
+          const x = (l.X0 * 2 + i + 0.5) * uf, z = (l.Z0 * 2 + j + 0.5) * uf, yy = (y + 0.5) * uf + 0.03;
+          const lit = !roof && ((i * 31 + j * 17 + y * 7 + (l.seed * 1000 | 0)) % 29 === 0);
+          (lit ? fineGlow : fine).push([x, yy, z, l]);
+        }
+      }
+    }
+    // trees along the avenue in the same small cubes: a trunk and a rounded canopy shell
+    const fineLeaf = [], fineBark = [];
+    for (const [tx, tz, big] of trees) {
+      if (Math.abs(tz - laneZ - 0.5) > 11 || tx < roadFrom - 12 || tx > roadTo + 12) continue;
+      const r = big ? 1.05 : 0.72, cy = big ? 1.9 : 1.35, th = big ? 1.3 : 0.9;
+      for (let y = 0; y < th; y += uf) fineBark.push([tx, y + uf / 2 + 0.03, tz]);
+      for (let x = -r; x <= r; x += uf) for (let y = -r; y <= r; y += uf) for (let z = -r; z <= r; z += uf) {
+        const dd = Math.sqrt(x * x + y * y * 1.2 + z * z);
+        if (dd <= r && dd > r - uf * 1.6) fineLeaf.push([tx + x, cy + y, tz + z]);
+      }
+    }
+    const fbox = new THREE.BoxGeometry(uf * 0.9, uf * 0.9, uf * 0.9);
+    // street furniture on the two pavements of the avenue: traffic lights, shelters, benches, bins, bollards, planters
+    const zN = laneZ - 0.75, zS = laneZ + 1.75, props = [], signals = [];
+    const P_ = (x, y, z, sx, sy, sz, k) => props.push([x, y, z, sx, sy, sz, k]);
+    const lampX = new Set(); for (let t = -H + 3; t < H; t += 3) lampX.add(Math.round((t + 0.5) * 10));
+    const nearLamp = (x) => [...lampX].some((lx) => Math.abs(lx / 10 - x) < 0.45);
+    for (let p = Math.floor((roadFrom - 9) / P) * P; p <= roadTo + 9; p += P) {
+      // traffic lights on opposite corners of each crossing
+      for (const [x, z, dz] of [[p - 0.2, zN, 1], [p + 2.2, zS, -1]]) {
+        P_(x, 0.55, z, 0.06, 1.1, 0.06, 'metal'); P_(x, 1.08, z + dz * 0.18, 0.05, 0.05, 0.36, 'metal');
+        P_(x, 0.92, z + dz * 0.36, 0.12, 0.3, 0.1, 'dark');
+        signals.push([x - 0.07, 1.01, z + dz * 0.36, 'red'], [x - 0.07, 0.92, z + dz * 0.36, 'amber'], [x - 0.07, 0.83, z + dz * 0.36, 'green']);
+      }
+      for (let b = 0; b < 3; b++) P_(p + 2.2 + b * 0.22, 0.09, zN + 0.18, 0.05, 0.18, 0.05, 'metal');   // bollards
+      if ((p / P) % 2 === 0) {   // a bus shelter on the north pavement
+        const x = p + 5.5;
+        P_(x, 0.64, zN, 1.2, 0.04, 0.42, 'metal'); P_(x, 0.36, zN - 0.19, 1.2, 0.52, 0.03, 'glass');
+        P_(x - 0.58, 0.32, zN, 0.04, 0.64, 0.04, 'metal'); P_(x + 0.58, 0.32, zN, 0.04, 0.64, 0.04, 'metal');
+        P_(x, 0.17, zN - 0.08, 0.9, 0.05, 0.16, 'wood');
+      }
+      for (const x of [p + 3.6, p + 7.4]) if (!nearLamp(x)) { P_(x, 0.16, zS + 0.12, 0.5, 0.05, 0.16, 'wood'); P_(x, 0.25, zS + 0.2, 0.5, 0.12, 0.03, 'wood'); P_(x - 0.2, 0.07, zS + 0.12, 0.04, 0.14, 0.14, 'metal'); P_(x + 0.2, 0.07, zS + 0.12, 0.04, 0.14, 0.14, 'metal'); }
+      for (const [x, z] of [[p + 4.3, zN + 0.12], [p + 6.6, zS - 0.1]]) if (!nearLamp(x)) P_(x, 0.11, z, 0.13, 0.22, 0.13, 'dark');   // bins
+      if (!nearLamp(p + 8.2)) { P_(p + 8.2, 0.07, zS + 0.05, 0.42, 0.14, 0.24, 'line'); for (let k = 0; k < 4; k++) P_(p + 8.05 + k * 0.1, 0.19, zS + 0.05, 0.09, 0.09, 0.09, 'leaf'); }   // planter
+    }
+    const unit = new THREE.BoxGeometry(1, 1, 1);
+    sProps = inst(unit, new THREE.MeshStandardMaterial({ roughness: 0.6 }), props.length, true);
+    props.forEach((p, i) => { m4.compose(v3.set(p[0], p[1] + 0.03, p[2]), q, sc.set(p[3], p[4], p[5])); sProps.setMatrixAt(i, m4); }); sc.set(1, 1, 1);
+    sSignals = inst(new THREE.BoxGeometry(0.02, 0.07, 0.07), new THREE.MeshBasicMaterial(), signals.length, false);
+    signals.forEach((g, i) => { m4.compose(v3.set(g[0], g[1] + 0.03, g[2]), q, sc); sSignals.setMatrixAt(i, m4); });
+    paintProps = (fg, bg, acc, dark) => {
+      const pal = { metal: fg.clone().lerp(bg, dark ? 0.45 : 0.35), dark: fg.clone().lerp(bg, dark ? 0.7 : 0.15), glass: acc.clone().lerp(bg, 0.5), wood: new THREE.Color(dark ? '#7A6048' : '#8A6B4E'), line: fg.clone().lerp(bg, 0.6), leaf: new THREE.Color(dark ? '#56B567' : '#3F9150') };
+      props.forEach((p, i) => sProps.setColorAt(i, pal[p[6]])); sProps.instanceColor.needsUpdate = true;
+      const lit = { red: new THREE.Color('#FF5A4E'), amber: new THREE.Color('#FFC24A'), green: new THREE.Color('#4CE38A') };
+      signals.forEach((g, i) => sSignals.setColorAt(i, lit[g[3]])); sSignals.instanceColor.needsUpdate = true;
+    };
+    sCity = inst(fbox, mat, fine.length, true); sWins = inst(fbox, winMat, fineGlow.length, false);
+    fine.forEach((c, i) => { m4.compose(v3.set(c[0], c[1], c[2]), q, sc); sCity.setMatrixAt(i, m4); });
+    fineGlow.forEach((c, i) => { m4.compose(v3.set(c[0], c[1], c[2]), q, sc); sWins.setMatrixAt(i, m4); });
+    sTrees = inst(fbox, treeMat, fineLeaf.length + fineBark.length, true);
+    fineLeaf.concat(fineBark).forEach((c, i) => { m4.compose(v3.set(c[0], c[1], c[2]), q, sc); sTrees.setMatrixAt(i, m4); });
+    sCity.visible = sWins.visible = sTrees.visible = sProps.visible = sSignals.visible = false;
+    paintStreet = (building, bg, dark) => {
+      const c = new THREE.Color();
+      fine.forEach((f, i) => { c.copy(building).lerp(bg, f[3].tone * (dark ? 0.45 : 0.32) + ((f[1] / uf | 0) % 2) * 0.04); sCity.setColorAt(i, c); });
+      sCity.instanceColor.needsUpdate = true;
+      const dark2 = dark, leaf2 = new THREE.Color(dark2 ? '#56B567' : '#3F9150'), bark2 = new THREE.Color(dark2 ? '#5B4A3C' : '#6E5A47');
+      for (let i = 0; i < fineLeaf.length + fineBark.length; i++) sTrees.setColorAt(i, i < fineLeaf.length ? c.copy(leaf2).offsetHSL(((i * 37) % 11 - 5) * 0.006, 0, ((i * 53) % 9 - 4) * 0.025) : bark2);
+      sTrees.instanceColor.needsUpdate = true;
+      if (paintProps) paintProps(new THREE.Color(css('--fg')), bg, new THREE.Color(css('--accent')), dark);
+    };
+    paint();
+    host.dataset.street = String(fine.length + fineGlow.length + fineLeaf.length + fineBark.length);
+  }
+
   let az = 0.7, orbitA = 2.2;
   function aim(v, t) {
     const cam = v.cam, r = v.el.getBoundingClientRect();
     cam.aspect = Math.max(0.2, r.width / Math.max(1, r.height));
     if (SHOT) { const S = SHOTS[SHOT]; const R = N * S.r; cam.position.set(Math.cos(S.az) * Math.cos(S.el) * R, Math.sin(S.el) * R, Math.sin(S.az) * Math.cos(S.el) * R); cam.lookAt(...S.look); v.fog = [R * 0.8, R * 2]; }
     else if (v.kind === 'road') {
-      // a low drone down the avenue: above the street trees, long lens, so each cube is small on screen
-      cam.fov = 26;
-      cam.position.set(roadX - 10, 6.2 + Math.sin(t * 0.9) * 0.08, laneZ + 0.5);
-      cam.lookAt(roadX + 26, 3.4 - sm.y * 1.4, laneZ + 0.5 + sm.x * 4);
-      v.fog = [20, 110];
+      const [px, pz] = route(roadD);
+      if (sCity) {
+        // street level, driving the avenue; the view looks ahead along the route, so it swings round at each U-turn
+        const [ax, az2] = route(roadD + 7);
+        cam.fov = 54; cam.position.set(px, 0.62 + Math.sin(t * 1.9) * 0.012, pz);
+        cam.lookAt(ax, 0.95 - sm.y * 0.5, az2 + sm.x * 1.6); v.fog = [10, 80];
+      } else {
+        // phones use the lighter city, so the street is filmed from above the trees with a long lens
+        const [bx, bz] = route(roadD - 10), [ax, az2] = route(roadD + 26);
+        cam.fov = 26; cam.position.set(bx, 6.2 + Math.sin(t * 0.9) * 0.08, bz);
+        cam.lookAt(ax, 3.4 - sm.y * 1.4, az2 + sm.x * 4); v.fog = [20, 110];
+      }
     } else if (v.kind === 'orbit') {
       const R = N * 1.1, el = 0.62, a = orbitA;
       cam.position.set(Math.cos(a) * Math.cos(el) * R, Math.sin(el) * R, Math.sin(a) * Math.cos(el) * R); cam.lookAt(0, 3, 0);
       v.fog = [R * 0.8, R * 2];
     } else {
       const scroll = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height * 0.9)));
-      const R = N * (small ? 1.4 : 1.2) * 1.4 - scroll * N * 0.35, el = 0.52 - sm.y * 0.04 - scroll * 0.2, a = az + sm.x * 0.16;
-      cam.position.set(Math.cos(a) * Math.cos(el) * R, Math.sin(el) * R, Math.sin(a) * Math.cos(el) * R); cam.lookAt(0, 4 - scroll * 3, 0);
+      const portrait = cam.aspect < 0.95;
+      const R = N * (small ? 1.4 : 1.2) * (portrait ? 1.7 : 1.4) - scroll * N * 0.35, el = 0.52 - sm.y * 0.04 - scroll * 0.2, a = az + sm.x * 0.16;
+      cam.position.set(Math.cos(a) * Math.cos(el) * R, Math.sin(el) * R, Math.sin(a) * Math.cos(el) * R); cam.lookAt(0, (portrait ? -30 : 4) - scroll * 3, 0);
       v.fog = [R * 0.8, R * 2];
     }
     cam.updateProjectionMatrix();
@@ -347,9 +461,8 @@ function start() {
     const t = (now - t0) / 1000;
     if (!risen) { place(city, lit, dl, t); place(wins, glow, dg, t); place(trees3d, leafy, dt, t); renderer.shadowMap.needsUpdate = true; if (t > 5) { place(city, lit, dl, 99); place(wins, glow, dg, 99); place(trees3d, leafy, dt, 99); risen = true; } }
     sm.x += (mouse.x - sm.x) * 0.04; sm.y += (mouse.y - sm.y) * 0.04;
-    if (!reduce) { az += 0.0004; orbitA += 0.0011; roadX += 0.03; }
-    // the road view cuts back to the start of the road behind a quick fade
-    if (roadX > roadTo) { if (!cutting) { cutting = now; views.forEach((v) => v.kind === 'road' && v.el.classList.add('cut')); } if (now - cutting > 380) { roadX = roadFrom; cutting = 0; views.forEach((v) => v.kind === 'road' && v.el.classList.remove('cut')); } }
+    if (!reduce) { az += 0.0004; orbitA += 0.0011; roadD += 0.022; }
+
     for (let i = 0; i < CARS; i++) {
       const c = car[i]; if (!reduce) c.p += c.v * c.l.dir; if (c.p > H) c.p -= N; if (c.p < -H) c.p += N;
       const x = c.l.ax === 'x' ? c.p : c.l.c, z = c.l.ax === 'x' ? c.l.c : c.p;
@@ -374,7 +487,9 @@ function start() {
         const y = Hh - r.bottom;
         renderer.setViewport(r.left, y, r.width, r.height); renderer.setScissor(r.left, y, r.width, r.height);
         scene.fog.near = v.fog[0]; scene.fog.far = v.fog[1];
-        const street = v.kind === 'road'; city.material = street ? fineMat : mat; wins.material = street ? fineWin : winMat;
+        const street = v.kind === 'road';
+        if (sCity) { city.visible = wins.visible = trees3d.visible = !street; sCity.visible = sWins.visible = sTrees.visible = sProps.visible = sSignals.visible = street; }
+        else { city.material = street ? fineMat : mat; wins.material = street ? fineWin : winMat; }
         renderer.render(scene, v.cam);
       }
     }

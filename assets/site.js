@@ -3,19 +3,27 @@
   var root = document.documentElement;
   function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function dark() { return root.dataset.theme !== 'light'; }
-  var mode = document.getElementById('mode');
-  function paintMode() {
-    var d = dark();
-    mode.setAttribute('aria-label', d ? 'Switch to light mode' : 'Switch to dark mode');
-    mode.querySelector('.nm').textContent = d ? 'Light' : 'Dark';
-  }
-  mode.addEventListener('click', function () { root.dataset.theme = dark() ? 'light' : 'dark'; store('aai-theme', root.dataset.theme); paintMode(); });
+  var modes = document.querySelectorAll('[data-mode]');
+  function paintMode() { var d = dark(); modes.forEach(function (b) { b.setAttribute('aria-pressed', String((b.dataset.mode === 'dark') === d)); }); }
+  modes.forEach(function (b) { b.addEventListener('click', function () { root.dataset.theme = b.dataset.mode; store('aai-theme', b.dataset.mode); paintMode(); }); });
   paintMode();
+  var disp = document.querySelector('.display'), dbtn = document.getElementById('display-btn');
+  if (disp && dbtn) {
+    dbtn.addEventListener('click', function (e) { e.stopPropagation(); var o = disp.classList.toggle('open'); dbtn.setAttribute('aria-expanded', String(o)); });
+    document.addEventListener('click', function (e) { if (!disp.contains(e.target)) { disp.classList.remove('open'); dbtn.setAttribute('aria-expanded', 'false'); } });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { disp.classList.remove('open'); dbtn.setAttribute('aria-expanded', 'false'); } });
+  }
   var cbs = document.querySelectorAll('.concepts button');
   function paintConcept() { cbs.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.concept === root.dataset.concept)); }); }
   cbs.forEach(function (b) { b.addEventListener('click', function () { root.dataset.concept = b.dataset.concept; store('aai-concept', b.dataset.concept); paintConcept(); }); });
   paintConcept();
 
+  var veil = document.querySelector('.veil.intro');
+  if (veil && root.classList.contains('intro-on')) {
+    var skip = function () { if (veil.classList.contains('skip')) return; veil.classList.add('skip'); root.style.setProperty('--start', '.3s'); dispatchEvent(new Event('aai-skip')); };
+    veil.addEventListener('click', skip); addEventListener('keydown', function (e) { if (e.key === 'Escape') skip(); });
+    veil.addEventListener('animationend', function (e) { if (e.target === veil) veil.style.display = 'none'; });
+  }
   var top = document.querySelector('.top');
   function hdr() { root.style.setProperty('--hdr', top.offsetHeight + 'px'); }
   hdr(); addEventListener('resize', hdr);

@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Actualise AI Identity</title>
 <meta name="description" content="The proposed Actus identity for Actualise AI: idea, symbol, logo rules, colour concepts, type, graphic language, motion and examples in use.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="Actualise AI Identity">
+<meta property="og:description" content="The proposed Actus identity for Actualise AI: idea, symbol, logo rules, colour concepts, type, graphic language, motion and examples in use.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#111111">
 <script>(function(){var r=document.documentElement;if(location.pathname.indexOf('/identity/')<0&&/^#(idea|symbol|logo|colour|language|motion|in-use|next)$/.test(location.hash)){location.replace('identity/'+location.hash);return}try{var c=localStorage.getItem('aai-concept'),t=localStorage.getItem('aai-theme');if(c&&/^(ink|cobalt)$/.test(c))r.dataset.concept=c;if(t)r.dataset.theme=t}catch(e){}if(!r.dataset.concept)r.dataset.concept='ink';r.classList.add('has-js');try{var ss=sessionStorage,rm=matchMedia('(prefers-reduced-motion: reduce)').matches;if(ss.getItem('aai-t')){ss.removeItem('aai-t');if(!rm)r.classList.add('arrive')}else if(!rm&&!ss.getItem('aai-seen')&&location.pathname.indexOf('/identity/')<0){r.classList.add('intro-on')}ss.setItem('aai-seen','1')}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -101,9 +106,12 @@
   <div class="wrap bar">
     <a class="brand" href="../" data-nav aria-label="Actualise AI home"><span class="wm" role="img" aria-label="Actualise AI"></span></a>
     <nav class="primary" aria-label="Primary"><a href="../" data-nav>Home</a><a href="../identity/" data-nav aria-current="page">Brand identity</a></nav>
-    <div class="controls">
-      <div class="concepts" role="group" aria-label="Colour concept"><button type="button" data-concept="ink" aria-pressed="false" title="Ink colour concept"><span class="dot" style="background: linear-gradient(135deg, #111111 50%, #D2DAEE 50%)"></span><span class="nm">Ink</span></button><button type="button" data-concept="cobalt" aria-pressed="false" title="Cobalt colour concept"><span class="dot" style="background: linear-gradient(135deg, #1C30D9 50%, #FFFFFF 50%)"></span><span class="nm">Cobalt</span></button></div>
-      <button type="button" class="mode" id="mode" aria-label="Switch colour mode"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg><span class="nm">Dark</span></button>
+    <div class="display">
+      <button type="button" class="display-btn" id="display-btn" aria-expanded="false" aria-controls="display-panel"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.5a6.5 6.5 0 0 1 0 13z" fill="currentColor"/></svg><span>Display</span></button>
+      <div class="display-panel" id="display-panel">
+        <div class="ctl"><span class="ctl-lab" id="lab-colour">Colour</span><div class="seg concepts" role="group" aria-labelledby="lab-colour"><button type="button" data-concept="ink" aria-pressed="false" title="Ink colour concept"><span class="dot" style="background: linear-gradient(135deg, #111111 50%, #D2DAEE 50%)"></span><span class="nm">Ink</span></button><button type="button" data-concept="cobalt" aria-pressed="false" title="Cobalt colour concept"><span class="dot" style="background: linear-gradient(135deg, #1C30D9 50%, #FFFFFF 50%)"></span><span class="nm">Cobalt</span></button></div></div>
+        <div class="ctl"><span class="ctl-lab" id="lab-mode">Mode</span><div class="seg modes" role="group" aria-labelledby="lab-mode"><button type="button" data-mode="dark" aria-pressed="true">Dark</button><button type="button" data-mode="light" aria-pressed="false">Light</button></div></div>
+      </div>
     </div>
   </div>
   <nav class="index" aria-label="On this page"><div class="wrap"><ol><li><a href="#idea"><span>01</span>Idea</a></li><li><a href="#symbol"><span>02</span>Symbol</a></li><li><a href="#logo"><span>03</span>Logo</a></li><li><a href="#colour"><span>04</span>Colour and type</a></li><li><a href="#language"><span>05</span>Graphic language</a></li><li><a href="#motion"><span>06</span>Motion</a></li><li><a href="#in-use"><span>07</span>In use</a></li><li><a href="#next"><span>08</span>Next steps</a></li></ol></div></nav>
