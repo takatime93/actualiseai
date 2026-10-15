@@ -24,6 +24,22 @@
     veil.addEventListener('click', skip); addEventListener('keydown', function (e) { if (e.key === 'Escape') skip(); });
     veil.addEventListener('animationend', function (e) { if (e.target === veil) veil.style.display = 'none'; });
   }
+  // once an entrance animation ends, hold its final state without the animation, so every browser repaints it
+  function settle(el) {
+    el.style.animation = 'none';
+    if (el.classList.contains('furrow') || el.classList.contains('crossrun')) el.style.strokeDashoffset = '0';
+    if (el.classList.contains('hair')) el.style.opacity = '1';
+    // some browsers keep showing an SVG's first frame after its animation ends; a layer nudge forces the repaint
+    // once every part of the drawing has finished, swap in a fresh copy in its final state: guaranteed to paint
+    var svg = el.ownerSVGElement;
+    if (svg && svg.isConnected && !svg.getAnimations({ subtree: true }).some(function (x) { return x.playState !== 'finished'; })) {
+      setTimeout(function () { if (svg.isConnected) svg.replaceWith(svg.cloneNode(true)); }, 60);
+    }
+  }
+  document.addEventListener('animationend', function (e) {
+    var el = e.target;
+    if (el.closest && (el.closest('.mega') || el.closest('.once'))) settle(el);
+  });
   var top = document.querySelector('.top');
   function hdr() { root.style.setProperty('--hdr', top.offsetHeight + 'px'); }
   hdr(); addEventListener('resize', hdr);
@@ -44,6 +60,17 @@
   });
   addEventListener('pageshow', function (e) { if (e.persisted) document.querySelectorAll('.veil.leave').forEach(function (v) { v.remove(); }); });
 
+  if (document.querySelector('.index')) {
+    var bar = top.querySelector('.bar'), lastY = scrollY;
+    var setBar = function () { root.style.setProperty('--bar', bar.offsetHeight + 'px'); };
+    setBar(); addEventListener('resize', setBar);
+    addEventListener('scroll', function () {
+      var y = scrollY, dy = y - lastY; lastY = y;
+      if (y < 160) top.classList.remove('compact');
+      else if (dy > 4) { top.classList.add('compact'); if (disp) { disp.classList.remove('open'); if (dbtn) dbtn.setAttribute('aria-expanded', 'false'); } }
+      else if (dy < -8) top.classList.remove('compact');
+    }, { passive: true });
+  }
   var links = document.querySelectorAll('.index a');
   if (links.length && 'IntersectionObserver' in window) {
     var map = {}; links.forEach(function (a) { map[a.hash.slice(1)] = a; });

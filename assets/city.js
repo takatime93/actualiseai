@@ -29,11 +29,9 @@ function start() {
   renderer.setPixelRatio(Math.min(devicePixelRatio, small ? 1.5 : 2));
   renderer.shadowMap.enabled = !small; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const shared = !SHOT;
-  if (shared) {
-    const cv = renderer.domElement; cv.className = 'city-canvas';
-    Object.assign(cv.style, { position: 'absolute', left: '0', top: '0', width: '100%', height: '100vh', pointerEvents: 'none', zIndex: '1' });
-    document.body.appendChild(cv);
-  } else host.appendChild(renderer.domElement);
+  // the WebGL canvas stays off-screen; every view box gets its own 2D canvas that the frame is copied into,
+  // so no canvas ever covers the rest of the page
+  if (!shared) host.appendChild(renderer.domElement);
   (VIEWS.length ? VIEWS : [host]).forEach((v) => v.classList.add('live'));
 
   let s0 = 20261015;
@@ -295,15 +293,22 @@ function start() {
   paint();
   new MutationObserver(paint).observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-concept'] });
 
-  const views = (VIEWS.length ? VIEWS : [host]).map((el) => ({ el, kind: el.dataset.cityView || 'hero', cam: new THREE.PerspectiveCamera(30, 1, 0.3, 700), on: true }));
+  const views = (VIEWS.length ? VIEWS : [host]).map((el) => {
+    const v = { el, kind: el.dataset.cityView || 'hero', cam: new THREE.PerspectiveCamera(30, 1, 0.3, 700), on: true };
+    if (shared) { v.cv = document.createElement('canvas'); v.cv.className = 'view-canvas'; v.cv.setAttribute('aria-hidden', 'true'); Object.assign(v.cv.style, { position: 'absolute', inset: '0', width: '100%', height: '100%', display: 'block', pointerEvents: 'none' }); el.prepend(v.cv); v.ctx = v.cv.getContext('2d'); }
+    return v;
+  });
   views.forEach((v) => { new IntersectionObserver((es) => { v.on = es[0].isIntersecting; }, { rootMargin: '100px' }).observe(v.el); });
   let W = 1, Hh = 1;
   function size() {
-    if (shared) { W = document.documentElement.clientWidth; Hh = innerHeight; }
-    else { const r = host.getBoundingClientRect(); W = Math.max(1, r.width); Hh = Math.max(1, r.height); }
+    if (shared) {
+      const pr = renderer.getPixelRatio(); let mw = 1, mh = 1;
+      views.forEach((v) => { const r = v.el.getBoundingClientRect(); v.w = Math.max(1, Math.round(r.width)); v.h = Math.max(1, Math.round(r.height)); v.cv.width = Math.round(v.w * pr); v.cv.height = Math.round(v.h * pr); mw = Math.max(mw, v.w); mh = Math.max(mh, v.h); });
+      W = mw; Hh = mh;
+    } else { const r = host.getBoundingClientRect(); W = Math.max(1, r.width); Hh = Math.max(1, r.height); }
     renderer.setSize(W, Hh, false);
   }
-  size(); addEventListener('resize', size); if (!shared) new ResizeObserver(size).observe(host);
+  size(); addEventListener('resize', size); const ro = new ResizeObserver(size); (shared ? views.map((v) => v.el) : [host]).forEach((e) => ro.observe(e));
   const mouse = { x: 0, y: 0 }, sm = { x: 0, y: 0 };
   addEventListener('pointermove', (e) => { mouse.x = e.clientX / innerWidth * 2 - 1; mouse.y = e.clientY / innerHeight * 2 - 1; }, { passive: true });
   renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
@@ -478,19 +483,23 @@ function start() {
     if (!reduce) birds(now / 1000);
     if (!shared) { const v = views[0]; aim(v, t); scene.fog.near = v.fog[0]; scene.fog.far = v.fog[1]; v.cam.aspect = W / Hh; v.cam.updateProjectionMatrix(); renderer.render(scene, v.cam); }
     else {
-      renderer.domElement.style.transform = 'translate3d(0,' + scrollY + 'px,0)';
-      renderer.setScissorTest(false); renderer.clear(); renderer.setScissorTest(true);
+      const pr = renderer.getPixelRatio(), gl = renderer.domElement;
+      renderer.setScissorTest(true);
       for (const v of views) {
-        if (!v.on) continue;
-        const r = aim(v, t);
-        if (r.bottom < 0 || r.top > Hh || r.width < 2) continue;
-        const y = Hh - r.bottom;
-        renderer.setViewport(r.left, y, r.width, r.height); renderer.setScissor(r.left, y, r.width, r.height);
+        if (!v.on || !v.ctx) continue;
+        const rr = aim(v, t);
+        if (Math.abs(rr.width - v.w) > 1 || Math.abs(rr.height - v.h) > 1) size();   // never draw a stretched frame
+        const w = v.w, h = v.h; if (w < 2 || h < 2) continue;
+        v.cam.aspect = w / h; v.cam.updateProjectionMatrix();
+        renderer.setViewport(0, 0, w, h); renderer.setScissor(0, 0, w, h); renderer.clear();
         scene.fog.near = v.fog[0]; scene.fog.far = v.fog[1];
         const street = v.kind === 'road';
         if (sCity) { city.visible = wins.visible = trees3d.visible = !street; sCity.visible = sWins.visible = sTrees.visible = sProps.visible = sSignals.visible = street; }
         else { city.material = street ? fineMat : mat; wins.material = street ? fineWin : winMat; }
         renderer.render(scene, v.cam);
+        const sw = Math.round(w * pr), sh = Math.round(h * pr);
+        v.ctx.clearRect(0, 0, v.cv.width, v.cv.height);
+        v.ctx.drawImage(gl, 0, gl.height - sh, sw, sh, 0, 0, v.cv.width, v.cv.height);
       }
     }
     if (SHOT && ++shotFrames === 6) document.title = 'shot-ready';
