@@ -19,15 +19,15 @@ h2.big { font-size: clamp(40px, 6vw, 92px); letter-spacing: -0.035em; line-heigh
 .mega .w > span { display: inline-block; animation: rise 1s cubic-bezier(.2, .8, .2, 1) calc(var(--start, .15s) + var(--i) * 70ms) both }
 @keyframes rise { from { transform: translateY(105%) } to { transform: none } }
 .hero-x { overflow: hidden; position: relative }
-.mast { position: relative; min-height: min(90vh, 920px); min-height: min(90svh, 920px); display: flex; align-items: flex-end; border-bottom: 1px solid var(--line); overflow: hidden }
+.mast { position: relative; min-height: max(760px, calc(100vh - var(--hdr))); min-height: max(760px, calc(100svh - var(--hdr))); display: flex; align-items: flex-end; border-bottom: 1px solid var(--line); overflow: hidden }
 .mast-3d { position: absolute; inset: 0 }
 .mast-3d canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block }
 .mast-fallback { position: absolute; left: var(--gut); right: var(--gut); top: 22% }
 .mast-3d.live .mast-fallback { display: none }
 .mast::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 70%, transparent) 30%, transparent 55%) }
-.mast-txt { position: relative; z-index: 1; width: 100%; box-sizing: border-box; padding-block: clamp(96px, 12vw, 160px) clamp(40px, 5vw, 72px) }
+.mast-txt { position: relative; z-index: 1; width: 100%; box-sizing: border-box; padding-block: clamp(260px, 30vh, 420px) clamp(72px, 9vh, 128px) }
 .mast .hero-row { margin-bottom: 0 }
-@media (max-width: 900px) { .mast { min-height: 0; padding-top: min(46vw, 300px) } .mast-txt { padding-top: 0 } }
+@media (max-width: 900px) { .mast { min-height: 0; padding-top: min(46vw, 300px) } .mast-txt { padding-block: 0 clamp(48px, 8vw, 72px) } }
 .hero-x .mega { margin-block: 18px 30px }
 .hero-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px 48px; margin-bottom: clamp(32px, 4vw, 48px) }
 .hero-row .lede { max-width: 40ch }

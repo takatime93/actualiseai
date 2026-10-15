@@ -74,10 +74,13 @@ function start() {
     camera.position.set(0, 0, dist); camera.updateProjectionMatrix();
     scene.fog.near = dist - 20; scene.fog.far = dist + 320;
     const vh = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * dist, vw = vh * camera.aspect;
-    const txt = document.querySelector('.mast-txt'), top = document.querySelector('.top');
-    const free = Math.max(0.25, 1 - (txt ? txt.offsetHeight : H * 0.5) / H);
-    markX = 0; markY = vh * (0.5 - free / 2);
-    group.scale.setScalar(Math.min((vw * 0.88) / G.w, (vh * free * 0.62) / G.h));
+    // the word sits in the open space between the header and the headline, with room on both sides
+    const hr = host.getBoundingClientRect(), first = document.querySelector('.mast-txt .sl');
+    const textTop = first ? first.getBoundingClientRect().top - hr.top : H * 0.55;
+    const padTop = Math.min(160, Math.max(56, H * 0.1)), gap = Math.min(120, Math.max(40, H * 0.08));
+    const y0 = padTop, y1 = Math.max(y0 + 60, textTop - gap), cy = (y0 + y1) / 2;
+    markX = 0; markY = vh * (0.5 - cy / H);
+    group.scale.setScalar(Math.min((vw * 0.84) / G.w, (vh * (y1 - y0) / H * 0.8) / G.h));
   }
   size(); new ResizeObserver(size).observe(host);
 
