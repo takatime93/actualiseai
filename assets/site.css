@@ -103,6 +103,15 @@ footer .sym { width: 96px }
 footer .wm { width: 200px }
 footer p { color: var(--mute); font-size: 15px; max-width: 56ch }
 
+/* live city views: the shared canvas draws into these boxes */
+.road-view { position: relative; aspect-ratio: 4 / 5; max-width: 100%; border: 1px solid var(--line); background: var(--raised); overflow: hidden }
+.road-view.live { background: transparent }
+.road-view::after { content: ""; position: absolute; inset: 0; z-index: 2; background: var(--bg); opacity: 0; transition: opacity .35s; pointer-events: none }
+.road-view.cut::after { opacity: 1 }
+.road-tag { position: absolute; left: 16px; bottom: 14px; z-index: 3; background: var(--bg); padding: 6px 10px }
+.intro-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: clamp(40px, 6vw, 96px); align-items: center }
+@media (max-width: 900px) { .intro-grid { grid-template-columns: minmax(0, 1fr) } .road-view { aspect-ratio: 4 / 3 } }
+
 /* city renders: one image per colour state; only the matching one shows */
 .render { margin: 0; position: relative; overflow: hidden; background: var(--raised) }
 .render img { display: none; width: 100%; height: 100%; object-fit: cover }

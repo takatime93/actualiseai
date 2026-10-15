@@ -3,7 +3,10 @@
 // and lit windows at night. Only the outer shell of each building is built, so the cubes go where you can see them.
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
-const host = document.querySelector('.city-3d');
+// Every element with data-city-view gets its own camera on the one shared city:
+// hero (aerial orbit), road (street level, moving along a road) and orbit (slow aerial turn).
+const VIEWS = [...document.querySelectorAll('[data-city-view]')];
+const host = VIEWS[0] || document.querySelector('.city-3d');
 
 const QP = new URLSearchParams(location.search), SHOT = QP.get('shot');
 const SHOTS = {
@@ -25,7 +28,13 @@ function start() {
   try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: !SHOT, preserveDrawingBuffer: !!SHOT, powerPreference: 'high-performance' }); } catch (e) { return; }
   renderer.setPixelRatio(Math.min(devicePixelRatio, small ? 1.5 : 2));
   renderer.shadowMap.enabled = !small; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  host.appendChild(renderer.domElement); host.classList.add('live');
+  const shared = !SHOT;
+  if (shared) {
+    const cv = renderer.domElement; cv.className = 'city-canvas';
+    Object.assign(cv.style, { position: 'absolute', left: '0', top: '0', width: '100%', height: '100vh', pointerEvents: 'none', zIndex: '1' });
+    document.body.appendChild(cv);
+  } else host.appendChild(renderer.domElement);
+  (VIEWS.length ? VIEWS : [host]).forEach((v) => v.classList.add('live'));
 
   let s0 = 20261015;
   const rnd = () => ((s0 = (s0 * 1664525 + 1013904223) >>> 0) / 4294967296);
@@ -184,10 +193,26 @@ function start() {
 
   // the city: one mesh for lit materials, one unlit mesh for glowing windows
   const box = new THREE.BoxGeometry(u * 0.92, u * 0.92, u * 0.92);
-  const lit = cubes.filter((c) => c[4] !== 3), glow = cubes.filter((c) => c[4] === 3);
+  const lit = cubes.filter((c) => c[4] !== 3 && c[4] !== 1 && c[4] !== 2), glow = cubes.filter((c) => c[4] === 3), leafy = cubes.filter((c) => c[4] === 1 || c[4] === 2);
   const mat = new THREE.MeshStandardMaterial({ roughness: 0.55, metalness: 0.06 });
+  // street level: every cube face reads as four smaller cubes (bevelled 2x2 cells with gaps)
+  const fineTex = (() => {
+    const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d');
+    g.fillStyle = '#6c6c6c'; g.fillRect(0, 0, 128, 128);
+    for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) {
+      const x = i * 64 + 2, y = j * 64 + 2, w = 60;
+      g.fillStyle = '#f4f4f4'; g.fillRect(x, y, w, w);
+      g.fillStyle = '#ffffff'; g.fillRect(x, y, w, 3); g.fillRect(x, y, 3, w);
+      g.fillStyle = 'rgba(0,0,0,0.1)'; g.fillRect(x, y + w - 3, w, 3); g.fillRect(x + w - 3, y, 3, w);
+    }
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
+  })();
+  const fineMat = mat.clone(); fineMat.map = fineTex; fineMat.bumpMap = fineTex; fineMat.bumpScale = 1.2;
   const city = inst(box, mat, lit.length, true); city.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  const treeMat = new THREE.MeshStandardMaterial({ roughness: 0.7, metalness: 0 });
+  const trees3d = inst(box, treeMat, leafy.length, true); trees3d.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   const winMat = new THREE.MeshBasicMaterial();
+  const fineWin = new THREE.MeshBasicMaterial({ map: fineTex });
   const wins = inst(box, winMat, glow.length, false); wins.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
 
   // traffic and boats
@@ -229,7 +254,7 @@ function start() {
     const fg = new THREE.Color(css('--fg')), bg = new THREE.Color(css('--bg')), acc = new THREE.Color(css('--accent'));
     const raised = new THREE.Color(css('--raised')), line = new THREE.Color(css('--line'));
     scene.fog.color.copy(bg); ground.material.color.copy(raised);
-    renderer.setClearColor(bg, SHOT ? 1 : 0);
+    renderer.setClearColor(bg, SHOT ? 1 : 0); renderer.autoClear = !shared;
     // trees are green in every concept: nature is the one colour the city keeps
     const leaf = new THREE.Color(dark ? (cobalt ? '#4FBF6A' : '#56B567') : (cobalt ? '#3A9A52' : '#3F9150')), bark = new THREE.Color(dark ? '#5B4A3C' : '#6E5A47');
     const warm = cobalt ? new THREE.Color('#FFFFFF') : new THREE.Color(dark ? '#F3E3B5' : '#46538A');
@@ -245,7 +270,10 @@ function start() {
       city.setColorAt(i, c);
     });
     city.instanceColor.needsUpdate = true;
+    leafy.forEach((cb, i) => { trees3d.setColorAt(i, cb[4] === 1 ? bark : c.copy(leaf).offsetHSL(((i * 37) % 11 - 5) * 0.006, 0, ((i * 53) % 9 - 4) * 0.02)); });
+    trees3d.instanceColor.needsUpdate = true; treeMat.emissive.copy(leaf).multiplyScalar(dark ? 0.06 : 0);
     winMat.color.copy(dark ? warm : building.clone().lerp(acc, 0.35));
+    fineMat.emissive.copy(mat.emissive); fineWin.color.copy(winMat.color);
     const pave = raised.clone().lerp(fg, dark ? 0.06 : 0.04), lawn = leaf.clone().lerp(raised, dark ? 0.62 : 0.55), water = acc.clone().lerp(bg, dark ? 0.6 : 0.4);
     flat.forEach(([, , v], i) => tiles.setColorAt(i, v === 1 ? line : v === 2 ? water : v === 3 ? lawn : pave));
     tiles.instanceColor.needsUpdate = true;
@@ -259,16 +287,26 @@ function start() {
   paint();
   new MutationObserver(paint).observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-concept'] });
 
+  const views = (VIEWS.length ? VIEWS : [host]).map((el) => ({ el, kind: el.dataset.cityView || 'hero', cam: new THREE.PerspectiveCamera(30, 1, 0.3, 700), on: true }));
+  views.forEach((v) => { new IntersectionObserver((es) => { v.on = es[0].isIntersecting; }, { rootMargin: '100px' }).observe(v.el); });
   let W = 1, Hh = 1;
-  function size() { const r = host.getBoundingClientRect(); W = Math.max(1, r.width); Hh = Math.max(1, r.height); renderer.setSize(W, Hh, false); camera.aspect = W / Hh; camera.updateProjectionMatrix(); }
-  size(); new ResizeObserver(size).observe(host);
+  function size() {
+    if (shared) { W = document.documentElement.clientWidth; Hh = innerHeight; }
+    else { const r = host.getBoundingClientRect(); W = Math.max(1, r.width); Hh = Math.max(1, r.height); }
+    renderer.setSize(W, Hh, false);
+  }
+  size(); addEventListener('resize', size); if (!shared) new ResizeObserver(size).observe(host);
   const mouse = { x: 0, y: 0 }, sm = { x: 0, y: 0 };
   addEventListener('pointermove', (e) => { mouse.x = e.clientX / innerWidth * 2 - 1; mouse.y = e.clientY / innerHeight * 2 - 1; }, { passive: true });
-  let onScreen = true; new IntersectionObserver((es) => { onScreen = es[0].isIntersecting; }).observe(host);
+  renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
+
+  // the street-level route: along the eastbound lane of the road nearest the centre
+  const laneZ = Math.round(0 / P) * P + 0.5, roadFrom = -H * 0.55, roadTo = H * 0.3;
+  let roadX = roadFrom + 6, cutting = 0;
 
   const t0 = performance.now() + 200, ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
   const del = (cb) => (cb[3] ? cb[3].d / H * 1.5 + cb[3].tone * 0.4 : Math.hypot(cb[0], cb[2]) / H * 1.5 + 0.3) + cb[1] * 0.012;
-  const dl = lit.map(del), dg = glow.map(del);
+  const dl = lit.map(del), dg = glow.map(del), dt = leafy.map(del);
   function place(mesh, arr, delays, t) {
     for (let i = 0; i < arr.length; i++) {
       const cb = arr[i], p = reduce ? 1 : ease((t - delays[i]) / 0.8), s = cb[4] === 2 ? 1.12 : 1;
@@ -277,21 +315,41 @@ function start() {
     mesh.instanceMatrix.needsUpdate = true; sc.set(1, 1, 1);
   }
   let risen = reduce || !!SHOT;
-  place(city, lit, dl, risen ? 99 : 0); place(wins, glow, dg, risen ? 99 : 0);
+  place(city, lit, dl, risen ? 99 : 0); place(wins, glow, dg, risen ? 99 : 0); place(trees3d, leafy, dt, risen ? 99 : 0);
 
-  let az = 0.7;
+  let az = 0.7, orbitA = 2.2;
+  function aim(v, t) {
+    const cam = v.cam, r = v.el.getBoundingClientRect();
+    cam.aspect = Math.max(0.2, r.width / Math.max(1, r.height));
+    if (SHOT) { const S = SHOTS[SHOT]; const R = N * S.r; cam.position.set(Math.cos(S.az) * Math.cos(S.el) * R, Math.sin(S.el) * R, Math.sin(S.az) * Math.cos(S.el) * R); cam.lookAt(...S.look); v.fog = [R * 0.8, R * 2]; }
+    else if (v.kind === 'road') {
+      // a low drone down the avenue: above the street trees, long lens, so each cube is small on screen
+      cam.fov = 26;
+      cam.position.set(roadX - 10, 6.2 + Math.sin(t * 0.9) * 0.08, laneZ + 0.5);
+      cam.lookAt(roadX + 26, 3.4 - sm.y * 1.4, laneZ + 0.5 + sm.x * 4);
+      v.fog = [20, 110];
+    } else if (v.kind === 'orbit') {
+      const R = N * 1.1, el = 0.62, a = orbitA;
+      cam.position.set(Math.cos(a) * Math.cos(el) * R, Math.sin(el) * R, Math.sin(a) * Math.cos(el) * R); cam.lookAt(0, 3, 0);
+      v.fog = [R * 0.8, R * 2];
+    } else {
+      const scroll = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height * 0.9)));
+      const R = N * (small ? 1.4 : 1.2) * 1.4 - scroll * N * 0.35, el = 0.52 - sm.y * 0.04 - scroll * 0.2, a = az + sm.x * 0.16;
+      cam.position.set(Math.cos(a) * Math.cos(el) * R, Math.sin(el) * R, Math.sin(a) * Math.cos(el) * R); cam.lookAt(0, 4 - scroll * 3, 0);
+      v.fog = [R * 0.8, R * 2];
+    }
+    cam.updateProjectionMatrix();
+    return r;
+  }
   function frame(now) {
     requestAnimationFrame(frame);
-    if (!onScreen && !SHOT) return;
+    if (!SHOT && !views.some((v) => v.on)) return;
     const t = (now - t0) / 1000;
-    if (!risen) { place(city, lit, dl, t); place(wins, glow, dg, t); if (t > 5) { place(city, lit, dl, 99); place(wins, glow, dg, 99); risen = true; } }
+    if (!risen) { place(city, lit, dl, t); place(wins, glow, dg, t); place(trees3d, leafy, dt, t); renderer.shadowMap.needsUpdate = true; if (t > 5) { place(city, lit, dl, 99); place(wins, glow, dg, 99); place(trees3d, leafy, dt, 99); risen = true; } }
     sm.x += (mouse.x - sm.x) * 0.04; sm.y += (mouse.y - sm.y) * 0.04;
-    if (!reduce) az += 0.0004;
-    const scroll = SHOT ? 0 : Math.min(1, scrollY / (Hh * 0.9)), S = SHOTS[SHOT];
-    const R = S ? N * S.r : N * (small ? 1.4 : 1.2) * 1.4 - scroll * N * 0.35, el = S ? S.el : 0.52 - sm.y * 0.04 - scroll * 0.2, a = S ? S.az : az + sm.x * 0.16;
-    camera.position.set(Math.cos(a) * Math.cos(el) * R, Math.sin(el) * R, Math.sin(a) * Math.cos(el) * R);
-    if (S) camera.lookAt(...S.look); else camera.lookAt(0, 4 - scroll * 3, 0);
-    scene.fog.near = R * 0.8; scene.fog.far = R * 2;
+    if (!reduce) { az += 0.0004; orbitA += 0.0011; roadX += 0.03; }
+    // the road view cuts back to the start of the road behind a quick fade
+    if (roadX > roadTo) { if (!cutting) { cutting = now; views.forEach((v) => v.kind === 'road' && v.el.classList.add('cut')); } if (now - cutting > 380) { roadX = roadFrom; cutting = 0; views.forEach((v) => v.kind === 'road' && v.el.classList.remove('cut')); } }
     for (let i = 0; i < CARS; i++) {
       const c = car[i]; if (!reduce) c.p += c.v * c.l.dir; if (c.p > H) c.p -= N; if (c.p < -H) c.p += N;
       const x = c.l.ax === 'x' ? c.p : c.l.c, z = c.l.ax === 'x' ? c.l.c : c.p;
@@ -305,7 +363,21 @@ function start() {
     }
     q.identity(); boats.instanceMatrix.needsUpdate = true;
     if (!reduce) birds(now / 1000);
-    renderer.render(scene, camera);
+    if (!shared) { const v = views[0]; aim(v, t); scene.fog.near = v.fog[0]; scene.fog.far = v.fog[1]; v.cam.aspect = W / Hh; v.cam.updateProjectionMatrix(); renderer.render(scene, v.cam); }
+    else {
+      renderer.domElement.style.transform = 'translate3d(0,' + scrollY + 'px,0)';
+      renderer.setScissorTest(false); renderer.clear(); renderer.setScissorTest(true);
+      for (const v of views) {
+        if (!v.on) continue;
+        const r = aim(v, t);
+        if (r.bottom < 0 || r.top > Hh || r.width < 2) continue;
+        const y = Hh - r.bottom;
+        renderer.setViewport(r.left, y, r.width, r.height); renderer.setScissor(r.left, y, r.width, r.height);
+        scene.fog.near = v.fog[0]; scene.fog.far = v.fog[1];
+        const street = v.kind === 'road'; city.material = street ? fineMat : mat; wins.material = street ? fineWin : winMat;
+        renderer.render(scene, v.cam);
+      }
+    }
     if (SHOT && ++shotFrames === 6) document.title = 'shot-ready';
   }
   let shotFrames = 0;
