@@ -114,6 +114,17 @@
     c.addEventListener('pointerleave', function () { c.style.setProperty('--rx', '0deg'); c.style.setProperty('--ry', '0deg'); });
   });
 
+  // ---- photos bloom into colour when they come into view, and fade back when they leave
+  if ('IntersectionObserver' in window) {
+    var pio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.intersectionRatio >= 0.35) e.target.classList.add('in-view');
+        else if (!e.isIntersecting) e.target.classList.remove('in-view');
+      });
+    }, { threshold: [0, 0.35] });
+    document.querySelectorAll('.photo').forEach(function (p) { if (!p.closest('.float-img')) pio.observe(p); });
+  }
+
   // ---- leaders light up as they pass the middle of the screen; the call counts up
   if ('IntersectionObserver' in window) {
     var lio = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('lit'); }); }, { rootMargin: '-42% 0px -42% 0px' });
