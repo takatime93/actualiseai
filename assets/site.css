@@ -110,6 +110,16 @@ footer .sym { width: 96px }
 footer .wm { width: 200px }
 footer p { color: var(--mute); font-size: 15px; max-width: 56ch }
 
+/* page transition: the screen is wiped like a pass of the plough */
+@keyframes wipe-up { to { clip-path: inset(0 0 100% 0) } }
+@keyframes wipe-in { from { clip-path: inset(100% 0 0 0) } to { clip-path: inset(0 0 0 0) } }
+.veil { position: fixed; inset: 0; z-index: 100; background: var(--bg); place-items: center; pointer-events: none; clip-path: inset(0 0 0 0) }
+.veil .sym { width: min(42vw, 260px) }
+.veil.leave { display: grid; animation: wipe-in .5s cubic-bezier(.7, 0, .2, 1) both; pointer-events: auto }
+.arrive body::after { content: ""; position: fixed; inset: 0; z-index: 100; background: var(--bg); pointer-events: none; animation: wipe-up .7s cubic-bezier(.7, 0, .2, 1) .05s both }
+.progress { position: absolute; left: 0; bottom: -1px; height: 2px; width: 100%; background: var(--fg); transform-origin: 0 50%; transform: scaleX(0); pointer-events: none }
+@media (prefers-reduced-motion: reduce) { .veil, .arrive body::after { display: none !important; animation: none } }
+
 /* the plough: lines draw, they never fade in */
 @keyframes ai-furrow { 0% { stroke-dashoffset: 1 } 42% { stroke-dashoffset: 0 } 100% { stroke-dashoffset: 0 } }
 @keyframes ai-cross { 0%, 42% { stroke-dashoffset: 1 } 58% { stroke-dashoffset: 0 } 100% { stroke-dashoffset: 0 } }
