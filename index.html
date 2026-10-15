@@ -13,9 +13,9 @@
 <style>
 /* homepage: motion is the material. Everything below still reads with motion off. */
 .sl { display: flex; gap: 14px; align-items: baseline }
-.mega { font-size: clamp(46px, 7.6vw, 132px); font-weight: 600; letter-spacing: -0.045em; line-height: 0.92; text-wrap: balance; max-width: 17ch }
+.mega { font-size: clamp(46px, 7.6vw, 132px); font-weight: 600; letter-spacing: -0.04em; line-height: 1.04; text-wrap: balance; max-width: 17ch }
 h2.big { font-size: clamp(40px, 6vw, 92px); letter-spacing: -0.035em; line-height: 0.98; max-width: 12ch }
-.mega .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em }
+.mega .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.1em; margin-bottom: -0.1em }
 .mega .w > span { display: inline-block; animation: rise 1s cubic-bezier(.2, .8, .2, 1) calc(var(--start, .15s) + var(--i) * 70ms) both }
 @keyframes rise { from { transform: translateY(105%) } to { transform: none } }
 .hero-x { overflow: hidden; position: relative }
@@ -62,7 +62,7 @@ h2.big { font-size: clamp(40px, 6vw, 92px); letter-spacing: -0.035em; line-heigh
 .float-img .photo img { filter: none !important } .float-img .photo::after { opacity: 0 !important }
 .intro { padding-bottom: 0 }
 .intro-img { margin-top: clamp(48px, 6vw, 88px); height: clamp(320px, 52vw, 760px) }
-.intro-img .photo { height: 100%; clip-path: inset(0 0 0 0) }
+.intro-img .photo, .intro-img .render { height: 100%; clip-path: inset(0 0 0 0) }
 .intro-img img { height: 118%; margin-top: -9% }
 .row-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: end; gap: 18px 48px }
 .row-head .sl { grid-column: 1 / -1 }
@@ -213,6 +213,20 @@ form.drop { border: 1px solid var(--line); padding: clamp(24px, 3vw, 40px); disp
   .rowg, .idx li, .idx h3, .bot, .mag, .ticks i { transition: none }
   .leaders li { opacity: 1 }
 }
+
+.city { position: relative; height: calc(100vh - var(--hdr)); height: calc(100svh - var(--hdr)); min-height: 560px; display: flex; align-items: flex-end; overflow: hidden; border-bottom: 1px solid var(--line) }
+.city-3d { position: absolute; inset: 0 }
+.city-3d canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block }
+.city-fallback { position: absolute; inset: 0 }
+.city-3d.live .city-fallback { opacity: 0; transition: opacity .8s }
+.city::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to top, var(--bg) 0%, var(--bg) 14%, color-mix(in srgb, var(--bg) 82%, transparent) 36%, color-mix(in srgb, var(--bg) 30%, transparent) 54%, transparent 68%) }
+.city-txt { position: relative; z-index: 1; width: 100%; box-sizing: border-box; padding-block: 0 clamp(72px, 10vh, 128px) }
+.city-txt .mega { margin-block: 18px 30px }
+.lab-note { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; padding-block: 28px; border-bottom: 1px solid var(--line) }
+.lab-note p { color: var(--body); max-width: 70ch }
+@media (max-width: 900px) { .city { min-height: 520px } }
+.shot .top, .shot .city-txt, .shot .lab-note, .shot .city::after { display: none !important }
+.shot .city { height: 100vh; border: 0 }
 </style>
 </head>
 <body>
@@ -231,17 +245,14 @@ form.drop { border: 1px solid var(--line); padding: clamp(24px, 3vw, 40px); disp
 <div class="cursor" aria-hidden="true"><span class="cur-ring"></span><span class="cur-lab"></span></div>
 <div class="float-img" aria-hidden="true"><figure class="photo fi fi-0"><img src="https://images.unsplash.com/photo-1623652554515-91c833e3080e?auto=format&fit=crop&q=70&w=600" srcset="https://images.unsplash.com/photo-1623652554515-91c833e3080e?auto=format&fit=crop&q=70&w=480 480w, https://images.unsplash.com/photo-1623652554515-91c833e3080e?auto=format&fit=crop&q=70&w=800 800w, https://images.unsplash.com/photo-1623652554515-91c833e3080e?auto=format&fit=crop&q=70&w=1200 1200w" sizes="360px" alt="A team planning with notes on a table" loading="lazy" decoding="async"></figure><figure class="photo fi fi-1"><img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=70&w=600" srcset="https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=70&w=480 480w, https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=70&w=800 800w, https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&q=70&w=1200 1200w" sizes="360px" alt="Leaders in a meeting around a table" loading="lazy" decoding="async"></figure><figure class="photo fi fi-2"><img src="https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&fit=crop&q=70&w=600" srcset="https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&fit=crop&q=70&w=480 480w, https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&fit=crop&q=70&w=800 800w, https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&fit=crop&q=70&w=1200 1200w" sizes="360px" alt="Hands typing on a laptop" loading="lazy" decoding="async"></figure><figure class="photo fi fi-3"><img src="https://images.unsplash.com/photo-1546872006-42c78c0ccb29?auto=format&fit=crop&q=70&w=600" srcset="https://images.unsplash.com/photo-1546872006-42c78c0ccb29?auto=format&fit=crop&q=70&w=480 480w, https://images.unsplash.com/photo-1546872006-42c78c0ccb29?auto=format&fit=crop&q=70&w=800 800w, https://images.unsplash.com/photo-1546872006-42c78c0ccb29?auto=format&fit=crop&q=70&w=1200 1200w" sizes="360px" alt="A speaker presenting to a workshop" loading="lazy" decoding="async"></figure><figure class="photo fi fi-4"><img src="https://images.unsplash.com/photo-1553775282-20af80779df7?auto=format&fit=crop&q=70&w=600" srcset="https://images.unsplash.com/photo-1553775282-20af80779df7?auto=format&fit=crop&q=70&w=480 480w, https://images.unsplash.com/photo-1553775282-20af80779df7?auto=format&fit=crop&q=70&w=800 800w, https://images.unsplash.com/photo-1553775282-20af80779df7?auto=format&fit=crop&q=70&w=1200 1200w" sizes="360px" alt="A support headset on a desk" loading="lazy" decoding="async"></figure></div>
 <main id="top">
-<section class="hero-x">
-  <div class="mast">
-    <div class="mast-3d" aria-hidden="true"><div class="mast-fallback"><span class="wm" role="img" aria-label="Actualise AI"></span></div></div>
-    <div class="mast-stage" aria-hidden="true"></div>
-    <div class="wrap mast-txt">
-      <p class="lab sl"><span class="num">00</span>Optimise your potential with AI</p>
-      <h1 class="mega" aria-label="Reimagine Speed to Execution™"><span class="w"><span style="--i: 0">Reimagine</span></span> <span class="w"><span style="--i: 1">Speed</span></span> <span class="w"><span style="--i: 2">to</span></span> <span class="w"><span style="--i: 3">Execution™</span></span></h1>
-      <div class="hero-row">
-        <p class="lede">with Actualise AI. We empower business leaders to work smarter, not harder.</p>
-        <div class="ctas"><a class="btn mag" href="#contact">Get started</a><a class="btn ghost mag" href="#call">Book a free call</a></div>
-      </div>
+<section class="hero-x city">
+  <div class="city-3d" aria-hidden="true"><figure class="render city-fallback"><img class="cs-ink-dark" src="assets/city/aerial-ink-dark.webp" alt="" loading="lazy" decoding="async" width="2000" height="1250"><img class="cs-ink-light" src="assets/city/aerial-ink-light.webp" alt="" loading="lazy" decoding="async" width="2000" height="1250"><img class="cs-cobalt-dark" src="assets/city/aerial-cobalt-dark.webp" alt="" loading="lazy" decoding="async" width="2000" height="1250"><img class="cs-cobalt-light" src="assets/city/aerial-cobalt-light.webp" alt="" loading="lazy" decoding="async" width="2000" height="1250"></figure></div>
+  <div class="wrap city-txt">
+    <p class="lab sl"><span class="num">00</span>Optimise your potential with AI</p>
+    <h1 class="mega" aria-label="Reimagine Speed to Execution™"><span class="w"><span style="--i: 0">Reimagine</span></span> <span class="w"><span style="--i: 1">Speed</span></span> <span class="w"><span style="--i: 2">to</span></span> <span class="w"><span style="--i: 3">Execution™</span></span></h1>
+    <div class="hero-row" style="margin-bottom: 0">
+      <p class="lede">with Actualise AI. We empower business leaders to work smarter, not harder.</p>
+      <div class="ctas"><a class="btn mag" href="#contact">Get started</a><a class="btn ghost mag" href="#call">Book a free call</a></div>
     </div>
   </div>
 </section>
@@ -255,7 +266,7 @@ form.drop { border: 1px solid var(--line); padding: clamp(24px, 3vw, 40px); disp
       <p class="lede">We empower business leaders to work smarter, not harder. By integrating advanced AI solutions, we help you streamline operations, increase productivity, and focus on what matters most: growing your business and achieving personal fulfilment.</p>
     </div>
   </div>
-  <div class="intro-img"><figure class="photo reveal"><img src="https://images.unsplash.com/photo-1665905033752-625a2ee3d4ba?auto=format&fit=crop&q=70&w=1800" srcset="https://images.unsplash.com/photo-1665905033752-625a2ee3d4ba?auto=format&fit=crop&q=70&w=480 480w, https://images.unsplash.com/photo-1665905033752-625a2ee3d4ba?auto=format&fit=crop&q=70&w=800 800w, https://images.unsplash.com/photo-1665905033752-625a2ee3d4ba?auto=format&fit=crop&q=70&w=1200 1200w, https://images.unsplash.com/photo-1665905033752-625a2ee3d4ba?auto=format&fit=crop&q=70&w=1800 1800w, https://images.unsplash.com/photo-1665905033752-625a2ee3d4ba?auto=format&fit=crop&q=70&w=2400 2400w" sizes="100vw" alt="A person at a tall window looking out over the city" loading="lazy" decoding="async"></figure></div>
+  <div class="intro-img"><figure class="render "><img class="cs-ink-dark" src="assets/city/low-ink-dark.webp" alt="A city of cubes: towers, courtyard blocks and parks along a river" loading="lazy" decoding="async" width="2000" height="1250"><img class="cs-ink-light" src="assets/city/low-ink-light.webp" alt="A city of cubes: towers, courtyard blocks and parks along a river" loading="lazy" decoding="async" width="2000" height="1250"><img class="cs-cobalt-dark" src="assets/city/low-cobalt-dark.webp" alt="A city of cubes: towers, courtyard blocks and parks along a river" loading="lazy" decoding="async" width="2000" height="1250"><img class="cs-cobalt-light" src="assets/city/low-cobalt-light.webp" alt="A city of cubes: towers, courtyard blocks and parks along a river" loading="lazy" decoding="async" width="2000" height="1250"></figure></div>
 </section>
 
 <section class="sec" id="services">
@@ -358,6 +369,6 @@ form.drop { border: 1px solid var(--line); padding: clamp(24px, 3vw, 40px); disp
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 <script src="assets/home.js" defer></script>
-<script type="module" src="assets/hero3d.js"></script>
+<script type="module" src="assets/city.js"></script>
 </body>
 </html>

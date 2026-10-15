@@ -4,13 +4,25 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
 const host = document.querySelector('.city-3d');
+
+const QP = new URLSearchParams(location.search), SHOT = QP.get('shot');
+const SHOTS = {
+  aerial: { az: 0.7, el: 0.84, r: 1.2, look: [0, 1.5, 0] },
+  low:    { az: 2.45, el: 0.24, r: 1.0, look: [0, 5, 0] },
+  tower:  { az: 1.05, el: 0.52, r: 0.5, look: [2, 9, 0] },
+};
+if (SHOT) {
+  const r = document.documentElement; r.classList.add('shot');
+  if (QP.get('concept')) r.dataset.concept = QP.get('concept');
+  if (QP.get('theme')) r.dataset.theme = QP.get('theme');
+}
 if (host) start();
 
 function start() {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const small = matchMedia('(max-width: 760px)').matches;
+  const small = !SHOT && matchMedia('(max-width: 760px)').matches;
   let renderer;
-  try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' }); } catch (e) { return; }
+  try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: !SHOT, preserveDrawingBuffer: !!SHOT, powerPreference: 'high-performance' }); } catch (e) { return; }
   renderer.setPixelRatio(Math.min(devicePixelRatio, small ? 1.5 : 2));
   renderer.shadowMap.enabled = !small; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   host.appendChild(renderer.domElement); host.classList.add('live');
@@ -18,7 +30,7 @@ function start() {
   let s0 = 20261015;
   const rnd = () => ((s0 = (s0 * 1664525 + 1013904223) >>> 0) / 4294967296);
   const N = small ? 54 : 72, H = N / 2, P = 9, V = 2, u = 1 / V;   // tiles; V cubes per tile
-  const BUDGET = small ? 8000 : 30000;                              // building cubes
+  const BUDGET = small ? 12000 : 40000;                              // building cubes
   const kind = new Uint8Array(N * N);                               // 0 lot, 1 road, 2 water, 3 park
   const inMap = (x, z) => x >= -H && x < H && z >= -H && z < H;
   const at = (x, z) => inMap(x, z) ? kind[(z + H) * N + (x + H)] : 1;
@@ -58,7 +70,7 @@ function start() {
       let type = core > 0.6 ? (roll < 0.5 ? 'tower' : roll < 0.75 ? 'twin' : 'step') : core > 0.25 ? (roll < 0.45 ? 'court' : roll < 0.8 ? 'tower' : 'step') : (roll < 0.55 ? 'low' : 'court');
       if (type === 'court' && (w < 3 || dz < 3)) type = 'tower';
       if (type === 'twin' && Math.max(w, dz) < 3) type = 'tower';
-      const h = (3 + 30 * core) * (0.55 + rnd() * 0.9) * (core > 0.5 && rnd() < 0.12 ? 1.7 : 1);
+      const h = (2 + 52 * Math.pow(core, 1.6)) * (0.6 + rnd() * 0.85) * (core > 0.45 && rnd() < 0.22 ? 1.9 : 1);
       lots.push({ r, X0: r[0] * V, Z0: r[1] * V, X1: r[2] * V, Z1: r[3] * V, h, type, d: dd, tone: rnd(), podium: 2 + (rnd() * 4 | 0), spire: rnd() < 0.35, seed: rnd() });
     }
   }
@@ -129,7 +141,7 @@ function start() {
   const hemi = new THREE.HemisphereLight(0xffffff, 0x445066, 1.2); scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xffffff, 2.3); sun.position.set(-40, 75, 28);
   sun.castShadow = !small; sun.shadow.mapSize.set(4096, 4096);
-  Object.assign(sun.shadow.camera, { left: -H - 6, right: H + 6, top: H + 6, bottom: -H - 6, near: 1, far: 240 });
+  Object.assign(sun.shadow.camera, { left: -H - 10, right: H + 10, top: H + 10, bottom: -H - 10, near: 1, far: 300 });
   sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.015; scene.add(sun);
 
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(N * 4, N * 4), new THREE.MeshStandardMaterial({ roughness: 1 }));
@@ -180,7 +192,7 @@ function start() {
   for (let p = -H; p < H; p += P) lanes.push({ ax: 'x', c: p + 0.5, dir: 1 }, { ax: 'x', c: p + 1.5, dir: -1 }, { ax: 'z', c: p + 0.5, dir: 1 }, { ax: 'z', c: p + 1.5, dir: -1 });
   const CARS = small ? 110 : 320, BOATS = small ? 4 : 9;
   const cars = inst(new THREE.BoxGeometry(0.34, 0.2, 0.34), new THREE.MeshBasicMaterial(), CARS, false);
-  const car = Array.from({ length: CARS }, () => ({ l: lanes[rnd() * lanes.length | 0], p: rnd() * N - H, v: 0.03 + rnd() * 0.06 }));
+  const car = Array.from({ length: CARS }, () => ({ l: lanes[rnd() * lanes.length | 0], p: rnd() * N - H, v: 0.015 + rnd() * 0.03 }));
   const boats = inst(new THREE.BoxGeometry(1.2, 0.22, 0.42), new THREE.MeshStandardMaterial({ roughness: 0.5 }), BOATS, true);
   const boat = Array.from({ length: BOATS }, (_, i) => ({ p: rnd() * N - H, v: (0.01 + rnd() * 0.02) * (i % 2 ? 1 : -1), off: (i % 2 ? 0.8 : -0.8) }));
 
@@ -214,7 +226,9 @@ function start() {
     const fg = new THREE.Color(css('--fg')), bg = new THREE.Color(css('--bg')), acc = new THREE.Color(css('--accent'));
     const raised = new THREE.Color(css('--raised')), line = new THREE.Color(css('--line'));
     scene.fog.color.copy(bg); ground.material.color.copy(raised);
-    const leaf = cobalt ? new THREE.Color(dark ? '#9FB2FF' : '#6F83F2') : new THREE.Color(dark ? '#7E9C86' : '#5F7E66');
+    renderer.setClearColor(bg, SHOT ? 1 : 0);
+    // trees are green in every concept: nature is the one colour the city keeps
+    const leaf = new THREE.Color(dark ? (cobalt ? '#4FBF6A' : '#56B567') : (cobalt ? '#3A9A52' : '#3F9150')), bark = new THREE.Color(dark ? '#5B4A3C' : '#6E5A47');
     const warm = cobalt ? new THREE.Color('#FFFFFF') : new THREE.Color(dark ? '#F3E3B5' : '#46538A');
     const building = fg.clone().lerp(bg, dark ? 0.14 : 0.06), c = new THREE.Color();
     mat.emissive.copy(fg).multiplyScalar(dark ? 0.08 : 0);
@@ -222,14 +236,14 @@ function start() {
       const t = cb[4];
       if (t === 0) { c.copy(building).lerp(bg, cb[3].tone * (dark ? 0.45 : 0.32) + (cb[1] % 2) * 0.04); }
       else if (t === 7) c.copy(acc);
-      else if (t === 1) c.copy(leaf).lerp(bg, 0.5);
-      else if (t === 2) c.copy(leaf).lerp(bg, (i % 5) * 0.05);
+      else if (t === 1) c.copy(bark);
+      else if (t === 2) c.copy(leaf).offsetHSL(((i * 37) % 11 - 5) * 0.006, 0, ((i * 53) % 9 - 4) * 0.02);
       else if (t === 6) c.copy(building).lerp(bg, 0.35);
       city.setColorAt(i, c);
     });
     city.instanceColor.needsUpdate = true;
     winMat.color.copy(dark ? warm : building.clone().lerp(acc, 0.35));
-    const pave = raised.clone().lerp(fg, dark ? 0.06 : 0.04), lawn = leaf.clone().lerp(raised, 0.7), water = acc.clone().lerp(bg, dark ? 0.6 : 0.4);
+    const pave = raised.clone().lerp(fg, dark ? 0.06 : 0.04), lawn = leaf.clone().lerp(raised, dark ? 0.62 : 0.55), water = acc.clone().lerp(bg, dark ? 0.6 : 0.4);
     flat.forEach(([, , v], i) => tiles.setColorAt(i, v === 1 ? line : v === 2 ? water : v === 3 ? lawn : pave));
     tiles.instanceColor.needsUpdate = true;
     markMesh.material.color.copy(fg).lerp(line, dark ? 0.55 : 0.4);
@@ -259,21 +273,21 @@ function start() {
     }
     mesh.instanceMatrix.needsUpdate = true; sc.set(1, 1, 1);
   }
-  let risen = reduce;
-  place(city, lit, dl, reduce ? 99 : 0); place(wins, glow, dg, reduce ? 99 : 0);
+  let risen = reduce || !!SHOT;
+  place(city, lit, dl, risen ? 99 : 0); place(wins, glow, dg, risen ? 99 : 0);
 
   let az = 0.7;
   function frame(now) {
     requestAnimationFrame(frame);
-    if (!onScreen) return;
+    if (!onScreen && !SHOT) return;
     const t = (now - t0) / 1000;
     if (!risen) { place(city, lit, dl, t); place(wins, glow, dg, t); if (t > 5) { place(city, lit, dl, 99); place(wins, glow, dg, 99); risen = true; } }
     sm.x += (mouse.x - sm.x) * 0.04; sm.y += (mouse.y - sm.y) * 0.04;
     if (!reduce) az += 0.0004;
-    const scroll = Math.min(1, scrollY / (Hh * 0.9));
-    const R = N * (small ? 1.3 : 1.12) - scroll * N * 0.35, el = 0.84 - sm.y * 0.06 - scroll * 0.3, a = az + sm.x * 0.16;
+    const scroll = SHOT ? 0 : Math.min(1, scrollY / (Hh * 0.9)), S = SHOTS[SHOT];
+    const R = S ? N * S.r : N * (small ? 1.4 : 1.2) - scroll * N * 0.35, el = S ? S.el : 0.84 - sm.y * 0.06 - scroll * 0.3, a = S ? S.az : az + sm.x * 0.16;
     camera.position.set(Math.cos(a) * Math.cos(el) * R, Math.sin(el) * R, Math.sin(a) * Math.cos(el) * R);
-    camera.lookAt(0, 1.5 - scroll * 1.5, 0);
+    if (S) camera.lookAt(...S.look); else camera.lookAt(0, 1.5 - scroll * 1.5, 0);
     scene.fog.near = R * 0.8; scene.fog.far = R * 2;
     for (let i = 0; i < CARS; i++) {
       const c = car[i]; if (!reduce) c.p += c.v * c.l.dir; if (c.p > H) c.p -= N; if (c.p < -H) c.p += N;
@@ -289,6 +303,8 @@ function start() {
     q.identity(); boats.instanceMatrix.needsUpdate = true;
     if (!reduce) birds(now / 1000);
     renderer.render(scene, camera);
+    if (SHOT && ++shotFrames === 6) document.title = 'shot-ready';
   }
+  let shotFrames = 0;
   requestAnimationFrame(frame);
 }

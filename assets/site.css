@@ -103,6 +103,14 @@ footer .sym { width: 96px }
 footer .wm { width: 200px }
 footer p { color: var(--mute); font-size: 15px; max-width: 56ch }
 
+/* city renders: one image per colour state; only the matching one shows */
+.render { margin: 0; position: relative; overflow: hidden; background: var(--raised) }
+.render img { display: none; width: 100%; height: 100%; object-fit: cover }
+:root[data-concept="ink"]:not([data-theme="light"]) .render .cs-ink-dark, :root:not([data-concept]):not([data-theme="light"]) .render .cs-ink-dark,
+:root[data-concept="ink"][data-theme="light"] .render .cs-ink-light,
+:root[data-concept="cobalt"]:not([data-theme="light"]) .render .cs-cobalt-dark,
+:root[data-concept="cobalt"][data-theme="light"] .render .cs-cobalt-light { display: block }
+
 /* page transition: the screen is wiped like a pass of the plough */
 @keyframes wipe-up { to { clip-path: inset(0 0 100% 0) } }
 @keyframes wipe-in { from { clip-path: inset(100% 0 0 0) } to { clip-path: inset(0 0 0 0) } }

@@ -85,6 +85,7 @@
 .card.back { background: var(--accent); border-color: var(--accent); display: grid; place-items: center; --ground: var(--accent) }
 .card.back svg { position: static; height: 44cqw; width: auto; color: var(--bg) }
 @media (max-width: 900px) { .print { grid-template-columns: minmax(0, 1fr) } .cards { max-width: 440px } }
+.preview-shot .render { aspect-ratio: 16 / 10; border: 1px solid var(--line); border-bottom: 0 }
 .preview { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; border: 1px solid var(--line); padding: clamp(24px, 3vw, 36px) }
 .preview p { color: var(--body); max-width: 52ch }
 .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(24px, 3vw, 40px) }
@@ -212,7 +213,7 @@
 <section class="sec" id="in-use">
   <div class="wrap">
     <div class="head"><p class="lab">In use</p><h2>The same rules, from the homepage to a business card.</h2></div>
-    <div class="preview"><p class="lab">Homepage</p><p>The reworked actualiseai.com.au, using the current site’s copy, is the first page of this site.</p><a class="btn" href="../" data-nav>Open the homepage</a></div>
+    <div class="preview-shot"><figure class="render "><img class="cs-ink-dark" src="../assets/city/aerial-ink-dark.webp" alt="The homepage masthead: a city of cubes seen from above" loading="lazy" decoding="async" width="2000" height="1250"><img class="cs-ink-light" src="../assets/city/aerial-ink-light.webp" alt="The homepage masthead: a city of cubes seen from above" loading="lazy" decoding="async" width="2000" height="1250"><img class="cs-cobalt-dark" src="../assets/city/aerial-cobalt-dark.webp" alt="The homepage masthead: a city of cubes seen from above" loading="lazy" decoding="async" width="2000" height="1250"><img class="cs-cobalt-light" src="../assets/city/aerial-cobalt-light.webp" alt="The homepage masthead: a city of cubes seen from above" loading="lazy" decoding="async" width="2000" height="1250"></figure><div class="preview"><p class="lab">Homepage</p><p>The reworked actualiseai.com.au opens on a city of about 48,000 cubes that rises out of the ground, with traffic, boats and birds. It follows the colour concept and mode, like everything else.</p><a class="btn" href="../" data-nav>Open the homepage</a></div></div>
     <div style="margin-top: 56px"><p class="lab">Social</p></div>
     <div class="posts">
       <div class="post">

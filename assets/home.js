@@ -160,7 +160,7 @@
   // ---- scroll-driven scenes (GSAP ScrollTrigger, if it loaded)
   if (window.gsap && window.ScrollTrigger) {
     gsap.registerPlugin(ScrollTrigger);
-    gsap.fromTo('.intro-img .photo', { clipPath: 'inset(10% 16% 10% 16%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: { trigger: '.intro-img', start: 'top 95%', end: 'center 55%', scrub: true } });
+    gsap.fromTo('.intro-img .photo, .intro-img .render', { clipPath: 'inset(10% 16% 10% 16%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: { trigger: '.intro-img', start: 'top 95%', end: 'center 55%', scrub: true } });
     gsap.fromTo('.intro-img img', { yPercent: -7 }, { yPercent: 7, ease: 'none', scrollTrigger: { trigger: '.intro-img', start: 'top bottom', end: 'bottom top', scrub: true } });
     gsap.fromTo('.timor-img img', { scale: 1.22 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '.timor', start: 'top bottom', end: 'bottom top', scrub: true } });
     ScrollTrigger.matchMedia({
