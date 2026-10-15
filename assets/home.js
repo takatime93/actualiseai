@@ -16,7 +16,7 @@
   var rows = [].slice.call(document.querySelectorAll('#hfg .rowg'));
   var depth = [-34, 22, -14], rowX = [0, 0, 0];
   var trail = [], heroOn = true, glow = 0;
-  var startDelay = (root.classList.contains('intro-on') ? 1.9 : 0) + 3.2;
+  var startDelay = (root.classList.contains('intro-on') ? 1.9 : 0) + 2.6;
   var born = performance.now();
   if (wrap && 'IntersectionObserver' in window) new IntersectionObserver(function (es) { heroOn = es[0].isIntersecting; }).observe(wrap);
   function hero(now) {
