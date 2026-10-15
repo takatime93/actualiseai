@@ -46,6 +46,8 @@
 
 
   var prog = document.createElement('span'); prog.className = 'progress'; top.appendChild(prog);
+  function brand() { top.classList.toggle('scrolled', scrollY > 120); }
+  addEventListener('scroll', brand, { passive: true }); brand();
   function progress() { var h = document.documentElement.scrollHeight - innerHeight; prog.style.transform = 'scaleX(' + (h > 0 ? scrollY / h : 0).toFixed(4) + ')'; }
   addEventListener('scroll', progress, { passive: true }); progress();
   var calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
