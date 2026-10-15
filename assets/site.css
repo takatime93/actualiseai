@@ -68,8 +68,8 @@ svg.sym, svg.fld, svg.cs, svg.pat { width: 100%; height: auto }
 .index a:hover, .index a[aria-current="true"] { color: var(--fg) }
 .index a[aria-current="true"] { border-bottom-color: var(--fg) }
 @media (max-width: 860px) {
-  .bar { grid-template-columns: 1fr auto 1fr; grid-template-areas: ". brand display" "nav nav nav"; gap: 10px 12px; padding-block: 14px 0 }
-  .brand { grid-area: brand; justify-self: center } .display { grid-area: display } .primary { grid-area: nav; justify-content: center }
+  .bar { grid-template-columns: 1fr auto; grid-template-areas: "brand display" "nav nav"; gap: 10px 12px; padding-block: 14px 0 }
+  .brand { grid-area: brand; justify-self: start } .display { grid-area: display } .primary { grid-area: nav; justify-content: flex-start; margin-inline: -12px }
   .brand .wm { width: min(56vw, 230px) }
   .display-btn { display: inline-flex }
   .display-btn span { display: none }
@@ -150,6 +150,9 @@ footer p { color: var(--mute); font-size: 15px; max-width: 56ch }
 .crossrun { stroke-dasharray: 1; stroke-dashoffset: 1; animation: ai-cross 4.6s cubic-bezier(.55,0,.3,1) infinite }
 .hair { animation: ai-hair 4.6s linear infinite }
 .once .furrow, .once .crossrun, .once .hair { animation-iteration-count: 1; animation-fill-mode: both }
+/* drawings in a .once section show complete until someone presses Replay */
+.once:not(.playing) .furrow, .once:not(.playing) .crossrun { animation: none; stroke-dashoffset: 0 }
+.once:not(.playing) .hair { animation: none; opacity: 1 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto } body { transition: none }
   .furrow, .crossrun { animation: none; stroke-dashoffset: 0 }

@@ -110,7 +110,11 @@
     show(0);
   }
   var rp = document.getElementById('replay');
-  if (rp) rp.addEventListener('click', function () { var s = document.querySelector('#symbol .sym-big'); s.replaceWith(s.cloneNode(true)); });
+  if (rp) rp.addEventListener('click', function () {
+    var sec = document.getElementById('symbol'), s = sec.querySelector('.sym-big'), c = s.cloneNode(true);
+    c.querySelectorAll('path').forEach(function (p) { p.style.animation = ''; p.style.strokeDashoffset = ''; p.style.opacity = ''; });
+    sec.classList.add('playing'); s.replaceWith(c);
+  });
 
   document.querySelectorAll('form[data-concept-form]').forEach(function (f) {
     f.addEventListener('submit', function (e) {
