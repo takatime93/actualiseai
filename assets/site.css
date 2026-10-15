@@ -1,15 +1,8 @@
-:root, :root[data-concept="ink"] { --bg: #F4F4F1; --fg: #111111; --raised: #FFFFFF; --line: #DADBD5; --body: #3A3E47; --mute: #5A6580; --accent: #46538A; --pattern: #9AA6C4; --band: #E3E6EC; --inv-bg: #111111; --inv-fg: #FFFFFF; color-scheme: light }
-@media (prefers-color-scheme: dark) {
-  :root[data-concept="ink"]:not([data-theme="light"]),
-  :root:not([data-concept]):not([data-theme="light"]) { --bg: #111111; --fg: #FFFFFF; --raised: #18191D; --line: #2A2D33; --body: #C9CCD4; --mute: #9AA6C4; --accent: #D2DAEE; --pattern: #687699; --band: #23283A; --inv-bg: #F4F4F1; --inv-fg: #111111; color-scheme: dark }
-}
-:root[data-concept="ink"][data-theme="dark"], :root:not([data-concept])[data-theme="dark"] { --bg: #111111; --fg: #FFFFFF; --raised: #18191D; --line: #2A2D33; --body: #C9CCD4; --mute: #9AA6C4; --accent: #D2DAEE; --pattern: #687699; --band: #23283A; --inv-bg: #F4F4F1; --inv-fg: #111111; color-scheme: dark }
+:root, :root[data-concept="ink"] { --bg: #111111; --fg: #FFFFFF; --raised: #18191D; --line: #2A2D33; --body: #C9CCD4; --mute: #9AA6C4; --accent: #D2DAEE; --pattern: #687699; --band: #23283A; --inv-bg: #F4F4F1; --inv-fg: #111111; color-scheme: dark }
+:root[data-concept="ink"][data-theme="light"], :root:not([data-concept])[data-theme="light"] { --bg: #F4F4F1; --fg: #111111; --raised: #FFFFFF; --line: #DADBD5; --body: #3A3E47; --mute: #5A6580; --accent: #46538A; --pattern: #9AA6C4; --band: #E3E6EC; --inv-bg: #111111; --inv-fg: #FFFFFF; color-scheme: light }
 :root[data-concept="ink"] [data-for]:not([data-for="ink"]) { display: none !important }
-:root[data-concept="cobalt"] { --bg: #FFFFFF; --fg: #1C30D9; --raised: #F2F4FF; --line: #D6DCFF; --body: #2B3580; --mute: #5763B5; --accent: #1C30D9; --pattern: #B3BEFF; --band: #E9EDFF; --inv-bg: #1C30D9; --inv-fg: #FFFFFF; color-scheme: light }
-@media (prefers-color-scheme: dark) {
-  :root[data-concept="cobalt"]:not([data-theme="light"]) { --bg: #1C30D9; --fg: #FFFFFF; --raised: #2439E3; --line: #4A5BEC; --body: #DCE1FF; --mute: #B8C2FF; --accent: #E4E9FF; --pattern: #4A5DF2; --band: #2E43EA; --inv-bg: #FFFFFF; --inv-fg: #1C30D9; color-scheme: dark }
-}
-:root[data-concept="cobalt"][data-theme="dark"] { --bg: #1C30D9; --fg: #FFFFFF; --raised: #2439E3; --line: #4A5BEC; --body: #DCE1FF; --mute: #B8C2FF; --accent: #E4E9FF; --pattern: #4A5DF2; --band: #2E43EA; --inv-bg: #FFFFFF; --inv-fg: #1C30D9; color-scheme: dark }
+:root[data-concept="cobalt"] { --bg: #1C30D9; --fg: #FFFFFF; --raised: #2439E3; --line: #4A5BEC; --body: #DCE1FF; --mute: #B8C2FF; --accent: #E4E9FF; --pattern: #4A5DF2; --band: #2E43EA; --inv-bg: #FFFFFF; --inv-fg: #1C30D9; color-scheme: dark }
+:root[data-concept="cobalt"][data-theme="light"] { --bg: #FFFFFF; --fg: #1C30D9; --raised: #F2F4FF; --line: #D6DCFF; --body: #2B3580; --mute: #5763B5; --accent: #1C30D9; --pattern: #B3BEFF; --band: #E9EDFF; --inv-bg: #1C30D9; --inv-fg: #FFFFFF; color-scheme: light }
 :root[data-concept="cobalt"] [data-for]:not([data-for="cobalt"]) { display: none !important }
 /* Layout: a header with two primary pages and the display controls; content on the wordmark's 24-unit grid */
 :root {

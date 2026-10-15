@@ -19,15 +19,17 @@ h2.big { font-size: clamp(40px, 6vw, 92px); letter-spacing: -0.035em; line-heigh
 .mega .w > span { display: inline-block; animation: rise 1s cubic-bezier(.2, .8, .2, 1) calc(var(--start, .15s) + var(--i) * 70ms) both }
 @keyframes rise { from { transform: translateY(105%) } to { transform: none } }
 .hero-x { overflow: hidden; position: relative }
-.mast { position: relative; min-height: max(760px, calc(100vh - var(--hdr))); min-height: max(760px, calc(100svh - var(--hdr))); display: flex; align-items: flex-end; border-bottom: 1px solid var(--line); overflow: hidden }
+.mast { position: relative; min-height: max(760px, calc(100vh - var(--hdr))); min-height: max(760px, calc(100svh - var(--hdr))); display: flex; flex-direction: column; border-bottom: 1px solid var(--line); overflow: hidden }
 .mast-3d { position: absolute; inset: 0 }
 .mast-3d canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; display: block }
-.mast-fallback { position: absolute; left: var(--gut); right: var(--gut); top: 22% }
+/* the word's own space: generous room under the nav, and a clear gap before the headline */
+.mast-stage { position: relative; flex: 1 0 auto; min-height: clamp(200px, 30vh, 420px); margin: clamp(72px, 11vh, 140px) var(--gut) clamp(48px, 7vh, 96px) }
+.mast-fallback { position: absolute; left: var(--gut); right: var(--gut); top: clamp(96px, 16vh, 200px) }
 .mast-3d.live .mast-fallback { display: none }
-.mast::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 70%, transparent) 30%, transparent 55%) }
-.mast-txt { position: relative; z-index: 1; width: 100%; box-sizing: border-box; padding-block: clamp(260px, 30vh, 420px) clamp(72px, 9vh, 128px) }
+.mast::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 70%, transparent) 26%, transparent 48%) }
+.mast-txt { position: relative; z-index: 1; width: 100%; box-sizing: border-box; padding-block: 0 clamp(96px, 13vh, 168px) }
 .mast .hero-row { margin-bottom: 0 }
-@media (max-width: 900px) { .mast { min-height: 0; padding-top: min(46vw, 300px) } .mast-txt { padding-block: 0 clamp(48px, 8vw, 72px) } }
+@media (max-width: 900px) { .mast { min-height: 0 } .mast-stage { flex: none; min-height: clamp(110px, 26vw, 220px); margin-block: 44px 28px } .mast-fallback { top: 52px } .mast-txt { padding-block: 0 clamp(56px, 10vw, 80px) } }
 .hero-x .mega { margin-block: 18px 30px }
 .hero-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px 48px; margin-bottom: clamp(32px, 4vw, 48px) }
 .hero-row .lede { max-width: 40ch }
@@ -232,6 +234,7 @@ form.drop { border: 1px solid var(--line); padding: clamp(24px, 3vw, 40px); disp
 <section class="hero-x">
   <div class="mast">
     <div class="mast-3d" aria-hidden="true"><div class="mast-fallback"><span class="wm" role="img" aria-label="Actualise AI"></span></div></div>
+    <div class="mast-stage" aria-hidden="true"></div>
     <div class="wrap mast-txt">
       <p class="lab sl"><span class="num">00</span>Optimise your potential with AI</p>
       <h1 class="mega" aria-label="Reimagine Speed to Execution™"><span class="w"><span style="--i: 0">Reimagine</span></span> <span class="w"><span style="--i: 1">Speed</span></span> <span class="w"><span style="--i: 2">to</span></span> <span class="w"><span style="--i: 3">Execution™</span></span></h1>

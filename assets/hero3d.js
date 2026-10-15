@@ -58,13 +58,16 @@ function start() {
     const bg = new THREE.Color(css('--bg'));
     scene.fog.color.copy(bg);
     markMat.color.set(0xffffff); dust.material.color.copy(pat);
+    // in dark modes the lighting would leave light cubes grey, so they get a soft glow of their own colour
+    const darkMode = root.dataset.theme !== 'light';
+    markMat.emissive.copy(fg).multiplyScalar(darkMode ? 0.38 : 0);
+    dust.material.emissive.copy(pat).multiplyScalar(darkMode ? 0.3 : 0);
     const c = new THREE.Color();
     for (let i = 0; i < N; i++) { c.copy(fg).lerp(acc, seed[i] < 0.12 ? 0.85 : seed[i] * 0.18); mark.setColorAt(i, c); }
     mark.instanceColor.needsUpdate = true;
   }
   paint();
   new MutationObserver(paint).observe(root, { attributes: true, attributeFilter: ['data-theme', 'data-concept'] });
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paint);
 
   let W = 1, H = 1, markX = 0, markY = 0;
   function size() {
@@ -74,15 +77,16 @@ function start() {
     camera.position.set(0, 0, dist); camera.updateProjectionMatrix();
     scene.fog.near = dist - 20; scene.fog.far = dist + 320;
     const vh = 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * dist, vw = vh * camera.aspect;
-    // the word sits in the open space between the header and the headline, with room on both sides
-    const hr = host.getBoundingClientRect(), first = document.querySelector('.mast-txt .sl');
-    const textTop = first ? first.getBoundingClientRect().top - hr.top : H * 0.55;
-    const padTop = Math.min(160, Math.max(56, H * 0.1)), gap = Math.min(120, Math.max(40, H * 0.08));
-    const y0 = padTop, y1 = Math.max(y0 + 60, textTop - gap), cy = (y0 + y1) / 2;
+    // the word is centred in its own reserved space (.mast-stage), leaving room for the tilt
+    const hr = host.getBoundingClientRect(), st = document.querySelector('.mast-stage');
+    const sr = st ? st.getBoundingClientRect() : { top: hr.top + H * 0.15, bottom: hr.top + H * 0.5 };
+    const y0 = sr.top - hr.top, y1 = sr.bottom - hr.top, cy = (y0 + y1) / 2;
     markX = 0; markY = vh * (0.5 - cy / H);
-    group.scale.setScalar(Math.min((vw * 0.84) / G.w, (vh * (y1 - y0) / H * 0.8) / G.h));
+    group.scale.setScalar(Math.min((vw * 0.7) / G.w, (vh * (y1 - y0) / H * 0.62) / G.h));
   }
-  size(); new ResizeObserver(size).observe(host);
+  size(); const ro2 = new ResizeObserver(size); ro2.observe(host); const st0 = document.querySelector('.mast-stage'); if (st0) ro2.observe(st0);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(size);
+  addEventListener('load', size);
 
   const mouse = new THREE.Vector2(0, 0), sm = new THREE.Vector2(0, 0); let mt = 0, onHero = true;
   addEventListener('pointermove', (e) => { const r = host.getBoundingClientRect(); mouse.set((e.clientX - r.left) / W * 2 - 1, -((e.clientY - r.top) / H * 2 - 1)); mt = performance.now(); }, { passive: true });
@@ -106,12 +110,12 @@ function start() {
     if (!onHero) return;
     const t = (now - t0) / 1000;
     const idle = now - mt > 2500;
-    const tx = idle ? Math.sin(now / 2600) * 0.35 : mouse.x, ty = idle ? Math.sin(now / 3700) * 0.25 : mouse.y;
+    const tx = idle ? Math.sin(now / 2600) * 0.3 : mouse.x, ty = idle ? Math.sin(now / 3700) * 0.2 : mouse.y;
     sm.x += (tx - sm.x) * 0.05; sm.y += (ty - sm.y) * 0.05;
     const scroll = Math.min(1, Math.max(0, window.scrollY / (H * 0.9)));
 
     group.position.set(markX, markY, 0);
-    group.rotation.set(-sm.y * 0.2 + scroll * 0.3, sm.x * 0.3, 0);
+    group.rotation.set(-sm.y * 0.08 + scroll * 0.3, sm.x * 0.14, 0);
 
     // the raw cursor on the word's plane, in the word's own units, and how fast it is moving
     ray.setFromCamera(raw, camera); ray.ray.intersectPlane(plane, hit);

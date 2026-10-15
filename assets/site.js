@@ -2,7 +2,7 @@
 (function () {
   var root = document.documentElement;
   function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-  function dark() { var t = root.dataset.theme; return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
+  function dark() { return root.dataset.theme !== 'light'; }
   var mode = document.getElementById('mode');
   function paintMode() {
     var d = dark();
@@ -10,7 +10,6 @@
     mode.querySelector('.nm').textContent = d ? 'Light' : 'Dark';
   }
   mode.addEventListener('click', function () { root.dataset.theme = dark() ? 'light' : 'dark'; store('aai-theme', root.dataset.theme); paintMode(); });
-  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paintMode);
   paintMode();
   var cbs = document.querySelectorAll('.concepts button');
   function paintConcept() { cbs.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.concept === root.dataset.concept)); }); }

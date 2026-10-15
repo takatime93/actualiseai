@@ -5,4 +5,4 @@ Two pages, built by `source/site.py` in the identity project (edit that script, 
 - `index.html`: the reworked actualiseai.com.au homepage, using the current site's copy. Images are placeholders for now.
 - `identity/`: the Actus brand identity.
 
-The header switches between two colour concepts (Ink and Cobalt) and light or dark mode. The choice is remembered in the browser and carries across both pages. Old identity links such as `/#colour` forward to `identity/#colour`.
+The header switches between two colour concepts (Ink and Cobalt) and dark or light mode. Dark is the default. The choice is remembered in the browser and carries across both pages. Old identity links such as `/#colour` forward to `identity/#colour`.
