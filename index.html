@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="assets/site.css?v=ede3cb3487">
+<link rel="stylesheet" href="assets/site.css?v=1ebd95f9f9">
 <style>
 /* homepage: motion is the material. Everything below still reads with motion off. */
 .sl { display: flex; gap: 14px; align-items: baseline }
@@ -241,7 +241,17 @@ form.drop { border: 1px solid var(--line); padding: clamp(24px, 3vw, 40px); disp
 @media (min-width: 901px) { .city-txt .mega { max-width: none; white-space: nowrap } }
 .lab-note { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; padding-block: 28px; border-bottom: 1px solid var(--line) }
 .lab-note p { color: var(--body); max-width: 70ch }
-@media (max-width: 900px) { .city { min-height: 520px } }
+@media (max-width: 900px) {
+  .city { min-height: 520px }
+  /* phones: the text sits low and compact so the city has the top of the screen */
+  .city-txt { padding-bottom: clamp(24px, 4.5vh, 40px) }
+  .city-txt .mega { margin-block: 12px 14px }
+  .city-txt .hero-row { gap: 18px }
+  .city-txt .lede { font-size: 16px; line-height: 1.45 }
+  .city-txt .ctas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; width: 100% }
+  .city-txt .ctas .btn { justify-content: center; padding: 14px 8px; font-size: 12px; letter-spacing: 0.05em }
+  .city::after { background: linear-gradient(to top, var(--bg) 0%, var(--bg) 22%, color-mix(in srgb, var(--bg) 85%, transparent) 38%, color-mix(in srgb, var(--bg) 20%, transparent) 50%, transparent 58%) }
+}
 .shot .top, .shot .city-txt, .shot .lab-note, .shot .city::after { display: none !important }
 .shot .city { height: 100vh; border: 0 }
 </style>
@@ -272,7 +282,7 @@ form.drop { border: 1px solid var(--line); padding: clamp(24px, 3vw, 40px); disp
     <h1 class="mega">Reimagine Speed to Execution™</h1>
     <div class="hero-row" style="margin-bottom: 0">
       <p class="lede">with Actualise AI. We empower business leaders to work smarter, not harder.</p>
-      <div class="ctas"><a class="btn mag" href="#contact">Get started</a><a class="btn ghost mag" href="#call">Free assessment call</a></div>
+      <div class="ctas"><a class="btn mag" href="#services">Explore services</a><a class="btn ghost mag" href="#stories">Success stories</a></div>
     </div>
   </div>
 </section>
@@ -386,10 +396,10 @@ form.drop { border: 1px solid var(--line); padding: clamp(24px, 3vw, 40px); disp
   </div>
 </footer>
 
-<script src="assets/site.js?v=ede3cb3487"></script>
+<script src="assets/site.js?v=1ebd95f9f9"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-<script src="assets/home.js?v=ede3cb3487" defer></script>
-<script type="module" src="assets/city.js?v=ede3cb3487"></script>
+<script src="assets/home.js?v=1ebd95f9f9" defer></script>
+<script type="module" src="assets/city.js?v=1ebd95f9f9"></script>
 </body>
 </html>

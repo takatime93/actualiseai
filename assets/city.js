@@ -452,9 +452,11 @@ function start() {
       v.fog = [R * 0.8, R * 2];
     } else {
       const scroll = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height * 0.9)));
+      // portrait screens: pull back so the whole city fits the width, and lift it into the top of the hero
       const portrait = cam.aspect < 0.95;
-      const R = N * (small ? 1.4 : 1.2) * (portrait ? 1.7 : 1.4) - scroll * N * 0.35, el = 0.52 - sm.y * 0.04 - scroll * 0.2, a = az + sm.x * 0.16;
-      cam.position.set(Math.cos(a) * Math.cos(el) * R, Math.sin(el) * R, Math.sin(a) * Math.cos(el) * R); cam.lookAt(0, (portrait ? -30 : 4) - scroll * 3, 0);
+      const R = (portrait ? N * 2.5 : N * (small ? 1.4 : 1.2) * 1.4) - scroll * N * 0.35, el = 0.52 - sm.y * 0.04 - scroll * 0.2, a = az + sm.x * 0.16;
+      cam.position.set(Math.cos(a) * Math.cos(el) * R, Math.sin(el) * R, Math.sin(a) * Math.cos(el) * R); cam.lookAt(0, 4 - scroll * 3, 0);
+      if (portrait) cam.setViewOffset(r.width, r.height, 0, r.height * 0.2, r.width, r.height); else cam.clearViewOffset();
       v.fog = [R * 0.8, R * 2];
     }
     cam.updateProjectionMatrix();
