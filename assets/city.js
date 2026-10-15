@@ -285,7 +285,7 @@ function start() {
     sm.x += (mouse.x - sm.x) * 0.04; sm.y += (mouse.y - sm.y) * 0.04;
     if (!reduce) az += 0.0004;
     const scroll = SHOT ? 0 : Math.min(1, scrollY / (Hh * 0.9)), S = SHOTS[SHOT];
-    const R = S ? N * S.r : N * (small ? 1.4 : 1.2) * 1.25 - scroll * N * 0.35, el = S ? S.el : 0.61 - sm.y * 0.05 - scroll * 0.22, a = S ? S.az : az + sm.x * 0.16;
+    const R = S ? N * S.r : N * (small ? 1.4 : 1.2) * 1.4 - scroll * N * 0.35, el = S ? S.el : 0.52 - sm.y * 0.04 - scroll * 0.2, a = S ? S.az : az + sm.x * 0.16;
     camera.position.set(Math.cos(a) * Math.cos(el) * R, Math.sin(el) * R, Math.sin(a) * Math.cos(el) * R);
     if (S) camera.lookAt(...S.look); else camera.lookAt(0, 4 - scroll * 3, 0);
     scene.fog.near = R * 0.8; scene.fog.far = R * 2;
