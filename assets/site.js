@@ -45,6 +45,20 @@
       try { navigator.clipboard.writeText(hex).then(function () { done('Copied'); }, select); } catch (e) { select(); }
     });
   });
+
+  var qs = document.querySelectorAll('.quote');
+  if (qs.length > 1) {
+    var i = 0, ctl = document.querySelector('.q-ctl'), cnt = document.querySelector('.q-count'), bars = document.querySelectorAll('.q-bar span');
+    function show(n) {
+      i = (n + qs.length) % qs.length;
+      qs.forEach(function (q, k) { q.hidden = k !== i; });
+      bars.forEach(function (b, k) { b.classList.toggle('on', k <= i); });
+      cnt.textContent = String(i + 1).padStart(2, '0') + ' / ' + String(qs.length).padStart(2, '0');
+    }
+    ctl.hidden = false;
+    ctl.querySelectorAll('.q-btn').forEach(function (b) { b.addEventListener('click', function () { show(i + Number(b.dataset.step)); }); });
+    show(0);
+  }
   var rp = document.getElementById('replay');
   if (rp) rp.addEventListener('click', function () { var s = document.querySelector('#symbol .sym-big'); s.replaceWith(s.cloneNode(true)); });
 

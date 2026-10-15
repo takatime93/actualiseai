@@ -11,12 +11,6 @@
 }
 :root[data-concept="cobalt"][data-theme="dark"] { --bg: #1C30D9; --fg: #FFFFFF; --raised: #2439E3; --line: #4A5BEC; --body: #DCE1FF; --mute: #B8C2FF; --accent: #E4E9FF; --pattern: #4A5DF2; --band: #2E43EA; --inv-bg: #FFFFFF; --inv-fg: #1C30D9; color-scheme: dark }
 :root[data-concept="cobalt"] [data-for]:not([data-for="cobalt"]) { display: none !important }
-:root[data-concept="loam"] { --bg: #EEE9DD; --fg: #1B1813; --raised: #F7F4EC; --line: #D7CFBD; --body: #4A4337; --mute: #776D59; --accent: #7A6230; --pattern: #C2B595; --band: #E2DAC7; --inv-bg: #1B1813; --inv-fg: #EEE9DD; color-scheme: light }
-@media (prefers-color-scheme: dark) {
-  :root[data-concept="loam"]:not([data-theme="light"]) { --bg: #1B1813; --fg: #EEE9DD; --raised: #24201A; --line: #3B352B; --body: #D2CAB9; --mute: #A39A86; --accent: #D8C08A; --pattern: #5A4E3C; --band: #2C271F; --inv-bg: #EEE9DD; --inv-fg: #1B1813; color-scheme: dark }
-}
-:root[data-concept="loam"][data-theme="dark"] { --bg: #1B1813; --fg: #EEE9DD; --raised: #24201A; --line: #3B352B; --body: #D2CAB9; --mute: #A39A86; --accent: #D8C08A; --pattern: #5A4E3C; --band: #2C271F; --inv-bg: #EEE9DD; --inv-fg: #1B1813; color-scheme: dark }
-:root[data-concept="loam"] [data-for]:not([data-for="loam"]) { display: none !important }
 /* Layout: a header with two primary pages and the display controls; content on the wordmark's 24-unit grid */
 :root {
   --sans: 'Work Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
