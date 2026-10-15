@@ -51,7 +51,6 @@ function start() {
   const dp = new Float32Array(M * 3), ds = new Float32Array(M);
   for (let i = 0; i < M; i++) { dp[i * 3] = (Math.random() - 0.5) * 520; dp[i * 3 + 1] = (Math.random() - 0.5) * 260; dp[i * 3 + 2] = -20 - Math.random() * 260; ds[i] = Math.random(); }
   scene.add(dust);
-  const dOff = new Float32Array(M * 2), dVel = new Float32Array(M * 2);
 
   const group = new THREE.Group(); scene.add(group); group.add(mark);
   function paint() {
@@ -152,24 +151,13 @@ function start() {
     }
     mark.instanceMatrix.needsUpdate = true;
 
-    const ro = ray.ray.origin, rd = ray.ray.direction;
-    ray.setFromCamera(raw, camera);
+    // the floating pixels are atmosphere only: they drift on their own and ignore the cursor
     for (let i = 0; i < M; i++) {
-      const s = ds[i], j = i * 2, zd = dp[i * 3 + 2];
-      let x = dp[i * 3] + Math.sin(now / 4000 + s * 20) * 3 - sm.x * (16 + s * 24);
-      let y = dp[i * 3 + 1] + Math.cos(now / 5000 + s * 14) * 3 - sm.y * (10 + s * 14) + scroll * 40 * s;
-      if (live) {
-        const tt = (zd - ro.z) / rd.z, cx = ro.x + rd.x * tt, cy = ro.y + rd.y * tt;
-        const dx = x + dOff[j] - cx, dy = y + dOff[j + 1] - cy, d = Math.sqrt(dx * dx + dy * dy) + 0.001, Rd = 50;
-        if (d < Rd) { const f = (1 - d / Rd) * (0.35 + speed * 0.04); dVel[j] += (-dy / d * 0.8 + dx / d * 0.3) * f; dVel[j + 1] += (dx / d * 0.8 + dy / d * 0.3) * f; }
-      }
-      dVel[j] = (dVel[j] - dOff[j] * 0.012) * 0.93; dVel[j + 1] = (dVel[j + 1] - dOff[j + 1] * 0.012) * 0.93;
-      dOff[j] += dVel[j]; dOff[j + 1] += dVel[j + 1];
-      x += dOff[j]; y += dOff[j + 1];
-      const spd = Math.abs(dVel[j]) + Math.abs(dVel[j + 1]);
-      e3.set(now / 3000 + s * 9 + spd, now / 4000 + s * 5 + spd, 0); q.setFromEuler(e3);
-      const ss = 1 + Math.min(0.5, spd * 0.1);
-      m4.compose(v.set(x, y, zd), q, sv.set(ss, ss, ss)); dust.setMatrixAt(i, m4);
+      const s = ds[i];
+      const x = dp[i * 3] + Math.sin(now / 4000 + s * 20) * 3;
+      const y = dp[i * 3 + 1] + Math.cos(now / 5000 + s * 14) * 3 + scroll * 40 * s;
+      e3.set(now / 3000 + s * 9, now / 4000 + s * 5, 0); q.setFromEuler(e3);
+      m4.compose(v.set(x, y, dp[i * 3 + 2]), q, sv.set(1, 1, 1)); dust.setMatrixAt(i, m4);
     }
     dust.instanceMatrix.needsUpdate = true;
     renderer.render(scene, camera);
