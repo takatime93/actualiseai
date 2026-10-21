@@ -126,10 +126,10 @@
     sec.classList.add('playing'); s.replaceWith(c);
   });
 
-  // Punk motion: things slam in as they arrive and section labels decode. Off with reduced motion.
+  // Arrival motion for the two punk themes: Punk slams in and decodes its labels; Pop Punk glides. Off with reduced motion.
   (function () {
     if (calm || !('IntersectionObserver' in window)) return;
-    var SEL = '.sec h2, .svc-card, .bot, .steps li, .g, .quiz, .st-panel, .faq details, .leaders li', io = null;
+    var SEL = '.sec h2, .svc-card, .bot, .steps li, .g, .quiz, .st-panel, .faq details, .leaders li', io = null, mode = '';
     var GLYPHS = '█▓▒░<>/\|=+*#01';
     function decode(el) {
       var t = el.lastChild; if (!t || t.nodeType !== 3 || el.dataset.dec) return;
@@ -140,23 +140,23 @@
         if (k >= fin.length) { clearInterval(iv); t.textContent = fin; }
       }, 45);
     }
-    function on() {
-      if (io) return;
-      root.classList.add('pk-ready');
+    function on(m) {
+      if (io && mode === m) return; off(); mode = m;
+      root.classList.add(m === 'punk' ? 'pk-ready' : 'pp-ready');
       io = new IntersectionObserver(function (es) {
         es.forEach(function (e) {
           if (!e.isIntersecting) return; io.unobserve(e.target);
-          if (e.target.classList.contains('sl')) decode(e.target); else e.target.classList.add('pk-in');
+          if (e.target.classList.contains('sl')) { if (mode === 'punk') decode(e.target); } else e.target.classList.add('pk-in');
         });
       }, { rootMargin: '0px 0px -8% 0px' });
       document.querySelectorAll(SEL + ', .sl').forEach(function (el) { io.observe(el); });
     }
     function off() {
-      if (!io) return; io.disconnect(); io = null; root.classList.remove('pk-ready');
+      if (!io) return; io.disconnect(); io = null; mode = ''; root.classList.remove('pk-ready', 'pp-ready');
       document.querySelectorAll('.pk-in').forEach(function (el) { el.classList.remove('pk-in'); });
       document.querySelectorAll('[data-dec]').forEach(function (el) { delete el.dataset.dec; });
     }
-    function sync() { if (root.dataset.concept === 'punk') on(); else off(); }
+    function sync() { var c = root.dataset.concept; if (c === 'punk' || c === 'cobalt') on(c); else off(); }
     new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-concept'] }); sync();
   })();
 

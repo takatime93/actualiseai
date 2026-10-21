@@ -80,8 +80,8 @@
   }
 
   // ---- marquee: speed and direction follow your scrolling
-  var mq = document.querySelector('.mq-track'), mqSet = mq && mq.querySelector('.mq-set');
-  var mqX = 0, dir = -1, lastY = scrollY, boost = 0;
+  var mqs = [].slice.call(document.querySelectorAll('.mq-track')).map(function (t, k) { return { t: t, set: t.querySelector('.mq-set'), x: 0, k: k % 2 ? -1 : 1 }; });
+  var mq = mqs.length, dir = -1, lastY = scrollY, boost = 0;
   addEventListener('scroll', function () {
     var dy = scrollY - lastY; lastY = scrollY;
     if (dy) dir = dy > 0 ? -1 : 1;
@@ -89,10 +89,14 @@
   }, { passive: true });
   function marquee() {
     if (!mq) return;
-    var sw = mqSet.offsetWidth; boost *= 0.92;
-    mqX += dir * (0.6 + boost);
-    if (mqX <= -sw) mqX += sw; if (mqX > 0) mqX -= sw;
-    mq.style.transform = 'translate3d(' + mqX.toFixed(1) + 'px,0,0)';
+    boost *= 0.92;
+    var c = root.dataset.concept, lean = c === 'cobalt' || c === 'punk' ? clamp(boost * dir * 1.1, -12, 12) : 0;
+    mqs.forEach(function (m) {
+      var sw = m.set.offsetWidth; if (!sw || !m.t.offsetParent) return;
+      m.x += dir * m.k * (0.6 + boost);
+      if (m.x <= -sw) m.x += sw; if (m.x > 0) m.x -= sw;
+      m.t.style.transform = 'translate3d(' + m.x.toFixed(1) + 'px,0,0) skewX(' + (lean * m.k).toFixed(2) + 'deg)';
+    });
   }
 
   // ---- cursor ring with labels
@@ -115,6 +119,12 @@
     cur.style.transform = 'translate3d(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px,0)';
   }
 
+  // ---- Pop Punk hero HUD: the time in Sydney
+  var hud = document.querySelector('.hud'), hclock = hud && hud.querySelector('[data-clock]');
+  if (hud) {
+    var tick = function () { try { hclock.textContent = new Intl.DateTimeFormat('en-AU', { timeZone: 'Australia/Sydney', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date()); } catch (e) {} };
+    tick(); setInterval(tick, 20000);
+  }
   function frame(now) { hero(now); marquee(); cursor(); requestAnimationFrame(frame); }
   requestAnimationFrame(frame);
 
@@ -175,7 +185,8 @@
         var dist = function () { return Math.max(0, track.scrollWidth - document.documentElement.clientWidth); };
         gsap.to(track, { x: function () { return -dist(); }, ease: 'none', scrollTrigger: {
           trigger: st, start: function () { return 'top ' + (document.querySelector('.top').offsetHeight); }, end: function () { return '+=' + dist(); },
-          pin: true, scrub: 0.6, invalidateOnRefresh: true, anticipatePin: 1 } });
+          pin: true, scrub: 0.6, invalidateOnRefresh: true, anticipatePin: 1,
+          onUpdate: function (self) { st.style.setProperty('--stp', self.progress.toFixed(4)); } } });
         return function () { st.classList.remove('pin-on'); };
       }
     });
