@@ -120,6 +120,14 @@
     sec.classList.add('playing'); s.replaceWith(c);
   });
 
+  // Punk sets the last word of each section heading on an acid block; the span is inert in other themes
+  document.querySelectorAll('main .sec h2:not(.mega), main .stories h2').forEach(function (h) {
+    var t = h.lastChild; if (!t || t.nodeType !== 3) return;
+    var m = t.textContent.match(/^(.*\s)(\S+)\s*$/); if (!m) return;
+    var sp = document.createElement('span'); sp.className = 'hl'; sp.textContent = m[2];
+    t.textContent = m[1]; h.appendChild(sp);
+  });
+
   // Arrival motion for Punk: a short rise, once per element. Off with reduced motion; Brutalism has none.
   (function () {
     if (calm || !('IntersectionObserver' in window)) return;
