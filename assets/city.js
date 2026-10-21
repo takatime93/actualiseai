@@ -36,8 +36,10 @@ function start() {
 
   let s0 = 20261015;
   const rnd = () => ((s0 = (s0 * 1664525 + 1013904223) >>> 0) / 4294967296);
-  const N = small ? 54 : 72, H = N / 2, P = 9, V = 2, u = 1 / V;   // tiles; V cubes per tile
-  const BUDGET = small ? 12000 : 40000;                              // building cubes
+  const N = small ? 54 : 108, H = N / 2, P = 9, V = 2, u = 1 / V;   // tiles; V cubes per tile
+  const BUDGET = small ? 15000 : 110000;                             // building cubes
+  const CORE = (small ? 54 : 72) * 0.27, NV = small ? 54 : 80;   // downtown keeps its size, the extra area is neighbourhoods; NV is what the cameras frame
+  const live = !reduce && !SHOT;                                     // blocks come down and new ones go up
   const kind = new Uint8Array(N * N);                               // 0 lot, 1 road, 2 water, 3 park
   const inMap = (x, z) => x >= -H && x < H && z >= -H && z < H;
   const at = (x, z) => inMap(x, z) ? kind[(z + H) * N + (x + H)] : 1;
@@ -72,7 +74,7 @@ function start() {
     for (const r of rects) {
       let ok = true; for (let z = r[1]; z < r[3]; z++) for (let x = r[0]; x < r[2]; x++) if (at(x, z) !== 0) ok = false;
       if (!ok) continue;
-      const dd = Math.hypot((r[0] + r[2]) / 2, (r[1] + r[3]) / 2), core = Math.exp(-((dd / (N * 0.27)) ** 2));
+      const dd = Math.hypot((r[0] + r[2]) / 2, (r[1] + r[3]) / 2), core = Math.exp(-((dd / CORE) ** 2));
       const w = r[2] - r[0], dz = r[3] - r[1], roll = rnd();
       let type = core > 0.6 ? (roll < 0.5 ? 'tower' : roll < 0.75 ? 'twin' : 'step') : core > 0.25 ? (roll < 0.45 ? 'court' : roll < 0.8 ? 'tower' : 'step') : (roll < 0.55 ? 'low' : 'court');
       if (type === 'court' && (w < 3 || dz < 3)) type = 'tower';
@@ -106,7 +108,7 @@ function start() {
     }
     return { hm, w, d, H0 };
   }
-  function shell(l, k, out) {
+  function shell(l, k, out, noTrees) {
     const { hm, w, d, H0 } = heights(l, k); let n = 0;
     const hAt = (i, j) => (i < 0 || j < 0 || i >= w || j >= d) ? 0 : hm[j * w + i];
     for (let j = 0; j < d; j++) for (let i = 0; i < w; i++) {
@@ -116,7 +118,7 @@ function start() {
         n++;
         if (out) out.push([(l.X0 + i + 0.5) * u, y, (l.Z0 + j + 0.5) * u, l, y < hc - 1 && ((i * 31 + j * 17 + y * 7 + (l.seed * 1000 | 0)) % 23 === 0) ? 3 : 0]);
       }
-      if (l.type === 'court' && hc === 0 && out && i > 1 && j > 1 && i < w - 2 && j < d - 2 && ((i + j) % 4 === 0)) tree((l.X0 + i + 0.5) * u, (l.Z0 + j + 0.5) * u, false);
+      if (l.type === 'court' && hc === 0 && out && !noTrees && i > 1 && j > 1 && i < w - 2 && j < d - 2 && ((i + j) % 4 === 0)) tree((l.X0 + i + 0.5) * u, (l.Z0 + j + 0.5) * u, false);
     }
     if (l.type === 'tower' && l.spire && H0 > 18 && w > 3 && d > 3) {
       const cx = l.X0 + Math.floor(w / 2), cz = l.Z0 + Math.floor(d / 2);
@@ -125,14 +127,14 @@ function start() {
     return n;
   }
   // find the height scale that fills the cube budget
-  let lo = 0.05, hi = 3;
+  let lo = 0.05, hi = small ? 3 : 2.05;   // the cap keeps the towers at the height people liked; the budget fills the wider city instead
   for (let it = 0; it < 18; it++) { const m = (lo + hi) / 2, c = lots.reduce((a, l) => a + shell(l, m, null), 0); if (c > BUDGET) hi = m; else lo = m; }
   // the really tall towers are held down: the two supertalls to 64%, the next tier to 80%
   const tops = lots.filter((l) => l.type !== 'low' && l.type !== 'court'), hmax = Math.max(...tops.map((l) => l.h));
   tops.forEach((l) => { if (l.h > hmax * 0.7) l.h *= 0.64; else if (l.h > hmax * 0.48) l.h *= 0.8; });
-  const cubes = [];
-  lots.forEach((l) => shell(l, lo, cubes));
-  const nBuild = cubes.length;
+  const cubes = [];   // trees and embankments; the buildings live in per-lot runs of slots, set up below
+  const lotCubes = lots.map((l) => { const out = []; shell(l, lo, out); return out; });
+  const HMAX = Math.max(...lots.map((l) => l.h));
   for (const [x, z, big] of trees) {
     for (let y = 0; y < (big ? 3 : 2); y++) cubes.push([x, y, z, null, 1]);
     const r = big ? 2 : 1, top = big ? 3 : 2;
@@ -145,7 +147,6 @@ function start() {
     const zc = river(x + u / 2);
     for (const side of [-1, 1]) { const z = zc + side * 2.55; if (at(Math.floor(x), Math.floor(z)) !== 1) cubes.push([x + u / 2, 0, z, null, 6]); }
   }
-  host.dataset.cubes = String(cubes.length);
 
   // ---------- scene
   const scene = new THREE.Scene();
@@ -196,7 +197,18 @@ function start() {
 
   // the city: one mesh for lit materials, one unlit mesh for glowing windows
   const box = new THREE.BoxGeometry(u * 0.92, u * 0.92, u * 0.92);
-  const lit = cubes.filter((c) => c[4] !== 3 && c[4] !== 1 && c[4] !== 2), glow = cubes.filter((c) => c[4] === 3), leafy = cubes.filter((c) => c[4] === 1 || c[4] === 2);
+  // every lot keeps a run of slots with room to spare, so later it can be rebuilt as something else
+  const SLACK = live ? 1.35 : 1, lit = [], glow = [];
+  lots.forEach((l, k) => {
+    const a = lotCubes[k].filter((c) => c[4] !== 3), g = lotCubes[k].filter((c) => c[4] === 3);
+    l.L0 = lit.length; l.LC = Math.ceil(a.length * SLACK) + (live ? 24 : 0); l.G0 = glow.length; l.GC = Math.ceil(g.length * SLACK) + (live ? 8 : 0);
+    for (let i = 0; i < l.LC; i++) lit.push(a[i] || null);
+    for (let i = 0; i < l.GC; i++) glow.push(g[i] || null);
+  });
+  cubes.forEach((c) => { if (c[4] === 6) lit.push(c); });
+  const leafy = cubes.filter((c) => c[4] === 1 || c[4] === 2), T0 = leafy.length, POOL = live ? (small ? 320 : 960) : 0;
+  for (let i = 0; i < POOL; i++) leafy.push(null);   // spare tree slots for blocks that become parks
+  host.dataset.cubes = String(lit.filter(Boolean).length + glow.filter(Boolean).length + T0);
   let paintStreet = null;
   const mat = new THREE.MeshStandardMaterial({ roughness: 0.55, metalness: 0.06 });
   // street level: every cube face reads as four smaller cubes (bevelled 2x2 cells with gaps)
@@ -212,18 +224,18 @@ function start() {
     const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t;
   })();
   const fineMat = mat.clone(); fineMat.map = fineTex; fineMat.bumpMap = fineTex; fineMat.bumpScale = 1.2;
-  const city = inst(box, mat, lit.length, true); city.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  const city = inst(box, mat, lit.length, true); city.instanceMatrix.setUsage(THREE.DynamicDrawUsage); city.frustumCulled = false;
   const treeMat = new THREE.MeshStandardMaterial({ roughness: 0.7, metalness: 0 });
-  const trees3d = inst(box, treeMat, leafy.length, true); trees3d.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  const trees3d = inst(box, treeMat, leafy.length, true); trees3d.instanceMatrix.setUsage(THREE.DynamicDrawUsage); trees3d.frustumCulled = false;
   const winMat = new THREE.MeshBasicMaterial();
   const fineWin = new THREE.MeshBasicMaterial({ map: fineTex });
-  const wins = inst(box, winMat, glow.length, false); wins.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  const wins = inst(box, winMat, glow.length, false); wins.instanceMatrix.setUsage(THREE.DynamicDrawUsage); wins.frustumCulled = false;
 
   // traffic and boats
   const lanes = [];
   // no traffic on the avenue the street camera drives (cross streets keep theirs)
   for (let p = -H; p < H; p += P) { if (p !== 0) lanes.push({ ax: 'x', c: p + 0.5, dir: 1 }, { ax: 'x', c: p + 1.5, dir: -1 }); lanes.push({ ax: 'z', c: p + 0.5, dir: 1 }, { ax: 'z', c: p + 1.5, dir: -1 }); }
-  const CARS = small ? 110 : 320, BOATS = small ? 4 : 9;
+  const CARS = small ? 110 : 640, BOATS = small ? 4 : 9;
   const cars = inst(new THREE.BoxGeometry(0.34, 0.2, 0.34), new THREE.MeshBasicMaterial(), CARS, false);
   const car = Array.from({ length: CARS }, () => ({ l: lanes[rnd() * lanes.length | 0], p: rnd() * N - H, v: 0.015 + rnd() * 0.03 }));
   const boats = inst(new THREE.BoxGeometry(1.2, 0.22, 0.42), new THREE.MeshStandardMaterial({ roughness: 0.5 }), BOATS, true);
@@ -254,6 +266,15 @@ function start() {
   }
   birds(0);
 
+  const pal = {};
+  function litColor(cb, i, c) {
+    const t = cb[4];
+    if (t === 0) c.copy(pal.building).lerp(pal.bg, cb[3].tone * (pal.dark ? 0.45 : 0.32) + (cb[1] % 2) * 0.04);
+    else if (t === 7) c.copy(pal.acc);
+    else if (t === 6) c.copy(pal.building).lerp(pal.bg, 0.35);
+    return c;
+  }
+  const treeColor = (cb, i, c) => cb[4] === 1 ? c.copy(pal.bark) : c.copy(pal.leaf).offsetHSL(((i * 37) % 11 - 5) * 0.006, 0, ((i * 53) % 9 - 4) * 0.02);
   function paint() {
     // Punk is a night city: lit windows in acid, traffic in hot pink
     const punk = root.dataset.concept === 'punk', dark = root.dataset.theme !== 'light', cobalt = root.dataset.concept === 'cobalt';
@@ -265,23 +286,17 @@ function start() {
     const leaf = new THREE.Color(dark ? (cobalt ? '#4FBF6A' : '#56B567') : (cobalt ? '#3A9A52' : '#3F9150')), bark = new THREE.Color(dark ? '#5B4A3C' : '#6E5A47');
     const warm = punk && dark ? new THREE.Color('#C6FF00') : cobalt && dark ? new THREE.Color('#D4FF3F') : cobalt ? new THREE.Color('#FFFFFF') : new THREE.Color(dark ? '#F3E3B5' : '#46538A');
     const building = fg.clone().lerp(bg, dark ? 0.14 : 0.06), c = new THREE.Color();
+    Object.assign(pal, { building, bg, dark, acc, bark, leaf });
     mat.emissive.copy(fg).multiplyScalar(dark ? 0.08 : 0);
-    lit.forEach((cb, i) => {
-      const t = cb[4];
-      if (t === 0) { c.copy(building).lerp(bg, cb[3].tone * (dark ? 0.45 : 0.32) + (cb[1] % 2) * 0.04); }
-      else if (t === 7) c.copy(acc);
-      else if (t === 1) c.copy(bark);
-      else if (t === 2) c.copy(leaf).offsetHSL(((i * 37) % 11 - 5) * 0.006, 0, ((i * 53) % 9 - 4) * 0.02);
-      else if (t === 6) c.copy(building).lerp(bg, 0.35);
-      city.setColorAt(i, c);
-    });
+    lit.forEach((cb, i) => { if (cb) city.setColorAt(i, litColor(cb, i, c)); });
     city.instanceColor.needsUpdate = true;
-    leafy.forEach((cb, i) => { trees3d.setColorAt(i, cb[4] === 1 ? bark : c.copy(leaf).offsetHSL(((i * 37) % 11 - 5) * 0.006, 0, ((i * 53) % 9 - 4) * 0.02)); });
+    leafy.forEach((cb, i) => { if (cb) trees3d.setColorAt(i, treeColor(cb, i, c)); });
     trees3d.instanceColor.needsUpdate = true; treeMat.emissive.copy(leaf).multiplyScalar(dark ? 0.06 : 0);
     winMat.color.copy(dark ? warm : building.clone().lerp(acc, 0.35));
     fineMat.emissive.copy(mat.emissive); fineWin.color.copy(winMat.color);
     if (paintStreet) paintStreet(building, bg, dark);
     const pave = raised.clone().lerp(fg, dark ? 0.06 : 0.04), lawn = leaf.clone().lerp(raised, dark ? 0.62 : 0.55), water = acc.clone().lerp(bg, dark ? 0.6 : 0.4);
+    Object.assign(pal, { pave, lawn, road: line.clone() });
     flat.forEach(([, , v], i) => tiles.setColorAt(i, v === 1 ? line : v === 2 ? water : v === 3 ? lawn : pave));
     tiles.instanceColor.needsUpdate = true;
     markMesh.material.color.copy(fg).lerp(line, dark ? 0.55 : 0.4);
@@ -315,7 +330,7 @@ function start() {
   renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
 
   // the street-level route: along the eastbound lane of the road nearest the centre
-  const laneZ = Math.round(0 / P) * P + 0.5, roadFrom = -H * 0.62, roadTo = H * 0.62;
+  const laneZ = Math.round(0 / P) * P + 0.5, RD = Math.min(H * 0.62, 22.3), roadFrom = -RD, roadTo = RD;
   // the street route stays inside the city: east along one lane, a U-turn, back along the other
   const seg = roadTo - roadFrom, turn = Math.PI * 0.5, loopLen = 2 * seg + 2 * turn;
   function route(d) {
@@ -330,11 +345,13 @@ function start() {
   let t0 = performance.now() + (document.documentElement.classList.contains('intro-on') ? 5600 : 200);
   addEventListener('aai-skip', () => { t0 = performance.now() + 150; });
   const ease = (x) => 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
-  const del = (cb) => (cb[3] ? cb[3].d / H * 1.5 + cb[3].tone * 0.4 : Math.hypot(cb[0], cb[2]) / H * 1.5 + 0.3) + cb[1] * 0.012;
+  const del = (cb) => !cb ? 0 : (cb[3] ? cb[3].d / H * 1.5 + cb[3].tone * 0.4 : Math.hypot(cb[0], cb[2]) / H * 1.5 + 0.3) + cb[1] * 0.012;
   const dl = lit.map(del), dg = glow.map(del), dt = leafy.map(del);
+  const ZERO = new THREE.Matrix4().makeScale(0, 0, 0);
   function place(mesh, arr, delays, t) {
     for (let i = 0; i < arr.length; i++) {
-      const cb = arr[i], p = reduce ? 1 : ease((t - delays[i]) / 0.8), s = cb[4] === 2 ? 1.12 : 1;
+      const cb = arr[i]; if (!cb) { mesh.setMatrixAt(i, ZERO); continue; }
+      const p = reduce ? 1 : ease((t - delays[i]) / 0.8), s = cb[4] === 2 ? 1.12 : 1;
       m4.compose(v3.set(cb[0], (cb[1] + 0.5) * u * p + 0.03 - (1 - p) * 1.5, cb[2]), q, sc.set(s * p, s * p, s * p)); mesh.setMatrixAt(i, m4);
     }
     mesh.instanceMatrix.needsUpdate = true; sc.set(1, 1, 1);
@@ -429,6 +446,114 @@ function start() {
     host.dataset.street = String(fine.length + fineGlow.length + fineLeaf.length + fineBark.length);
   }
 
+
+  // ---------- the living city: a few blocks at a time come down top first, and something new goes up.
+  // Each lot owns a run of slots, so only the blocks that are changing are touched each frame.
+  const changing = new Set(), freeTrees = [];
+  for (let i = 0; i + 20 <= POOL; i += 20) freeTrees.push(T0 + i);
+  let nextChange = 0, nextWorks = 0, works = null, shadowTick = 0;
+  const touch = (attr, i0, n, size) => { if (n <= 0) return; if (attr.addUpdateRange) attr.addUpdateRange(i0 * size, n * size); else { attr.updateRange.offset = i0 * size; attr.updateRange.count = n * size; } attr.needsUpdate = true; };
+  const cubeAt = (mesh, i, cb, p, drop) => {
+    if (!cb || p <= 0.001) { mesh.setMatrixAt(i, ZERO); return; }
+    const s = (cb[4] === 2 ? 1.12 : 1) * p;
+    m4.compose(v3.set(cb[0], (cb[1] + 0.5) * u * (drop ? 1 : p) + 0.03 - (1 - p) * (drop ? 0.6 : 1.5), cb[2]), q, sc.set(s, s, s)); mesh.setMatrixAt(i, m4);
+  };
+  const topOf = (l) => { let t = 0; for (let i = l.L0; i < l.L0 + l.LC; i++) if (lit[i]) t = Math.max(t, lit[i][1]); return t; };
+  function variant(l) {
+    const core = Math.exp(-((l.d / CORE) ** 2)), w = l.r[2] - l.r[0], dz = l.r[3] - l.r[1], roll = rnd();
+    let type = core > 0.6 ? (roll < 0.5 ? 'tower' : roll < 0.75 ? 'twin' : 'step') : core > 0.25 ? (roll < 0.45 ? 'court' : roll < 0.8 ? 'tower' : 'step') : (roll < 0.55 ? 'low' : 'court');
+    if (type === 'court' && (w < 3 || dz < 3)) type = 'tower';
+    if (type === 'twin' && Math.max(w, dz) < 3) type = 'tower';
+    Object.assign(l, { type, tone: rnd(), seed: rnd(), podium: 2 + (rnd() * 4 | 0), spire: rnd() < 0.35, h: Math.min(HMAX * 0.9, (2 + 52 * Math.pow(core, 1.6)) * (0.6 + rnd() * 0.85)) });
+  }
+  function build(l) {   // the new shape, held down until it fits the lot's slots
+    for (let k = 0; k < 10; k++) {
+      const out = []; shell(l, lo, out, true);
+      const a = out.filter((c) => c[4] !== 3), g = out.filter((c) => c[4] === 3);
+      if (a.length <= l.LC && g.length <= l.GC) return [a, g];
+      l.h *= 0.82;
+    }
+    return [[], []];
+  }
+  function park(l, on) {
+    for (let z = l.r[1]; z < l.r[3]; z++) for (let x = l.r[0]; x < l.r[2]; x++) {
+      const i = (z + H) * N + (x + H); set(x, z, on ? 3 : 0); flat[i][2] = on ? 3 : 0; tiles.setColorAt(i, on ? pal.lawn : pal.pave);
+    }
+    tiles.instanceColor.needsUpdate = true; l.park = on;
+  }
+  function plant(l) {   // a few small trees on a new park, in spare tree slots
+    l.trees = [];
+    const want = Math.min(freeTrees.length, Math.max(2, Math.round((l.r[2] - l.r[0]) * (l.r[3] - l.r[1]) / 4)), 6);
+    for (let n = 0; n < want; n++) {
+      const s0 = freeTrees.pop(), x = l.r[0] + 0.5 + rnd() * (l.r[2] - l.r[0] - 1), z = l.r[1] + 0.5 + rnd() * (l.r[3] - l.r[1] - 1), cbs = [];
+      for (let y = 0; y < 2; y++) cbs.push([x, y, z, null, 1]);
+      for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = 0; c < 2; c++) if (a * a + b * b + (c - 0.5) * (c - 0.5) * 1.6 <= 1.6 && cbs.length < 20) cbs.push([x + a * u * 0.9, 2 + c, z + b * u * 0.9, null, 2]);
+      const col = new THREE.Color();
+      for (let i = 0; i < 20; i++) { leafy[s0 + i] = cbs[i] || null; if (cbs[i]) trees3d.setColorAt(s0 + i, treeColor(cbs[i], s0 + i, col)); }
+      l.trees.push(s0);
+    }
+    if (l.trees.length) trees3d.instanceColor.needsUpdate = true;
+  }
+  function demolish(l, now) { l.ch = { phase: 'down', t0: now, top: topOf(l) }; changing.add(l); }
+  function swap(l, now) {
+    // the old block is gone: clear its slots, then decide what goes up instead
+    for (const s0 of l.trees || []) { for (let i = 0; i < 20; i++) { leafy[s0 + i] = null; trees3d.setMatrixAt(s0 + i, ZERO); } freeTrees.push(s0); touch(trees3d.instanceMatrix, s0, 20, 16); }
+    l.trees = null;
+    const outer = Math.exp(-((l.d / CORE) ** 2)) < 0.5;
+    const col = new THREE.Color();
+    let a = [], g = [];
+    if (!l.park && outer && rnd() < 0.25) { park(l, true); plant(l); }
+    else { if (l.park) park(l, false); variant(l); [a, g] = build(l); }
+    for (let i = 0; i < l.LC; i++) { const cb = a[i] || null; lit[l.L0 + i] = cb; if (cb) city.setColorAt(l.L0 + i, litColor(cb, l.L0 + i, col)); }
+    for (let i = 0; i < l.GC; i++) glow[l.G0 + i] = g[i] || null;
+    touch(city.instanceColor, l.L0, l.LC, 3);
+    l.ch = { phase: 'up', t0: now, top: a.reduce((m, c) => Math.max(m, c[1]), 0) };
+  }
+  function step(l, now) {
+    const t = (now - l.ch.t0) / 1000, top = l.ch.top, down = l.ch.phase === 'down';
+    const P_ = (cb, i) => down ? 1 - ease((t - (top - cb[1]) * 0.03 - ((i * 7) % 5) * 0.03) / 0.4) : ease((t - cb[1] * 0.028 - ((i * 7) % 5) * 0.04) / 0.6);
+    for (let i = l.L0; i < l.L0 + l.LC; i++) cubeAt(city, i, lit[i], lit[i] ? P_(lit[i], i) : 0, down);
+    for (let i = l.G0; i < l.G0 + l.GC; i++) cubeAt(wins, i, glow[i], glow[i] ? P_(glow[i], i) : 0, down);
+    for (const s0 of l.trees || []) { for (let i = s0; i < s0 + 20; i++) cubeAt(trees3d, i, leafy[i], leafy[i] ? P_(leafy[i], i) : 0, down); touch(trees3d.instanceMatrix, s0, 20, 16); }
+    touch(city.instanceMatrix, l.L0, l.LC, 16); touch(wins.instanceMatrix, l.G0, l.GC, 16);
+    const end = down ? top * 0.03 + 0.62 : top * 0.028 + 0.85;
+    if (t > end) { if (down) swap(l, now); else { changing.delete(l); l.ch = null; renderer.shadowMap.needsUpdate = true; } }
+  }
+  // roadworks: now and then a stretch of street is lifted and relaid, in a wave along it
+  function roadworks(now) {
+    if (!works) {
+      const K = Math.floor(H / P), line = () => P * (Math.floor(rnd() * (2 * K + 1)) - K), along = rnd() < 0.5, p = line(), s = line() + 2, idx = [];
+      for (let k = 0; k < P - 2; k++) for (let o = 0; o < 2; o++) {
+        const x = along ? s + k : p + o, z = along ? p + o : s + k;
+        if (at(x, z) === 1 && inMap(x, z)) idx.push([(z + H) * N + (x + H), x, z, k]);
+      }
+      if (!idx.length) return;
+      works = { idx, t0: now };
+    }
+    const t = (now - works.t0) / 1000, col = new THREE.Color();
+    for (const [i, x, z, k] of works.idx) {
+      const e = Math.max(0, Math.min(1, (t - k * 0.12) / 1.1)), lift = Math.sin(e * Math.PI) * 0.28;
+      m4.compose(v3.set(x + 0.5, -0.01 + lift, z + 0.5), q, sc); tiles.setMatrixAt(i, m4);
+      tiles.setColorAt(i, e > 0 && e < 1 ? col.copy(pal.road).lerp(pal.acc, 0.55) : pal.road);
+    }
+    tiles.instanceMatrix.needsUpdate = true; tiles.instanceColor.needsUpdate = true;
+    if (t > (P - 2) * 0.12 + 1.3) { works = null; nextWorks = now + 9000 + rnd() * 6000; }
+  }
+  function living(now) {
+    if (!live || !risen) return;
+    if (root.dataset.concept === 'punk' && root.classList.contains('fx-off')) return;
+    if (!nextChange) { nextChange = now + 1800; nextWorks = now + 6000; }
+    if (now > nextChange && changing.size < (small ? 2 : 3)) {
+      const pick = lots.filter((l) => !l.ch && l.d < NV * 0.6);
+      // of three random candidates, the one nearest the middle, so most changes happen where people are looking
+      if (pick.length) demolish([0, 1, 2].map(() => pick[rnd() * pick.length | 0]).sort((a, b) => a.d - b.d)[0], now);
+      nextChange = now + (small ? 4200 : 2400) * (0.7 + rnd() * 0.6);
+    }
+    changing.forEach((l) => step(l, now));
+    if (changing.size && ++shadowTick % 12 === 0) renderer.shadowMap.needsUpdate = true;
+    if (works || now > nextWorks) roadworks(now);
+  }
+
   let az = 0.7, orbitA = 2.2;
   function aim(v, t) {
     const cam = v.cam, r = v.el.getBoundingClientRect();
@@ -448,14 +573,14 @@ function start() {
         cam.lookAt(ax, 3.4 - sm.y * 1.4, az2 + sm.x * 4); v.fog = [20, 110];
       }
     } else if (v.kind === 'orbit') {
-      const R = N * 1.1, el = 0.62, a = orbitA;
+      const R = NV * 1.1, el = 0.62, a = orbitA;
       cam.position.set(Math.cos(a) * Math.cos(el) * R, Math.sin(el) * R, Math.sin(a) * Math.cos(el) * R); cam.lookAt(0, 3, 0);
       v.fog = [R * 0.8, R * 2];
     } else {
       const scroll = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height * 0.9)));
       // portrait screens: pull back so the whole city fits the width, and lift it into the top of the hero
       const portrait = cam.aspect < 0.95;
-      const R = (portrait ? N * 2.5 : N * (small ? 1.4 : 1.2) * 1.4) - scroll * N * 0.35, el = 0.52 - sm.y * 0.04 - scroll * 0.2, a = az + sm.x * 0.16;
+      const R = (portrait ? NV * 2.5 : NV * (small ? 1.4 : 1.2) * 1.4) - scroll * NV * 0.35, el = 0.52 - sm.y * 0.04 - scroll * 0.2, a = az + sm.x * 0.16;
       cam.position.set(Math.cos(a) * Math.cos(el) * R, Math.sin(el) * R, Math.sin(a) * Math.cos(el) * R); cam.lookAt(0, 4 - scroll * 3, 0);
       if (portrait) cam.setViewOffset(r.width, r.height, 0, r.height * 0.2, r.width, r.height); else cam.clearViewOffset();
       v.fog = [R * 0.8, R * 2];
@@ -468,6 +593,7 @@ function start() {
     if (!SHOT && !views.some((v) => v.on)) return;
     const t = (now - t0) / 1000;
     if (!risen) { place(city, lit, dl, t); place(wins, glow, dg, t); place(trees3d, leafy, dt, t); renderer.shadowMap.needsUpdate = true; if (t > 5) { place(city, lit, dl, 99); place(wins, glow, dg, 99); place(trees3d, leafy, dt, 99); risen = true; } }
+    living(now);
     sm.x += (mouse.x - sm.x) * 0.04; sm.y += (mouse.y - sm.y) * 0.04;
     if (!reduce) { az += 0.0004; orbitA += 0.0011; roadD += 0.022; }
 
