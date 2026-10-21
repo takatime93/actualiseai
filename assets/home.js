@@ -1,4 +1,44 @@
 // Homepage interaction. Everything here is enhancement: with it off, the page is complete.
+// The readiness check works with or without motion, so it sits outside the motion block below.
+(function () {
+  var f = document.querySelector('[data-quiz]'); if (!f) return;
+  var qs = [].slice.call(f.querySelectorAll('.q')), res = f.querySelector('.q-result'), back = f.querySelector('[data-back]');
+  var bar = f.querySelector('.q-bar'), hint = f.querySelector('.q-hint'), at = 0, ans = [];
+  var STAGES = [
+    { max: 4, stage: 'Getting started', text: 'AI isn’t part of the work yet, and that’s a good place to start from: no habits to undo. The fastest gains come from getting the whole team using it well on the tasks they already do.', link: 'AI training: team training and teaching bots', href: '#services' },
+    { max: 8, stage: 'Building momentum', text: 'Some of your team are already using AI, but unevenly. Training brings everyone to the same level, and a leadership workshop agrees what AI is for in your business.', link: 'AI training, with a leadership workshop', href: '#services' },
+    { max: 12, stage: 'Ready to scale', text: 'Your people use AI and your leaders agree on its purpose. The next step is strategy: where AI fits across the business, in what order, and what to build.', link: 'AI strategy, including consulting', href: '#services' }];
+  function show(i) {
+    at = i; qs.forEach(function (q, k) { q.hidden = k !== i; });
+    res.hidden = i < qs.length; f.classList.toggle('done', i >= qs.length);
+    back.disabled = i === 0; bar.style.setProperty('--p', (Math.min(i, qs.length) / qs.length * 100) + '%');
+    hint.textContent = i < qs.length ? 'Pick an answer to continue' : '';
+  }
+  function result() {
+    var score = ans.slice(0, 4).reduce(function (a, b) { return a + b; }, 0), goal = ans[4];
+    var s = STAGES.filter(function (x) { return score <= x.max; })[0];
+    // a team that wants a strategy or a custom tool, and isn't starting from zero, is pointed at strategy
+    if (score > 4 && goal >= 2 && s !== STAGES[2]) s = { stage: s.stage, text: s.text + ' You said a strategy or a custom tool matters most, so that’s where we’d start.', link: STAGES[2].link, href: '#services' };
+    res.querySelector('.r-stage').textContent = s.stage;
+    res.querySelector('.r-text').textContent = s.text;
+    var a = res.querySelector('.r-link'); a.textContent = s.link + ' →'; a.href = s.href;
+    show(qs.length); res.focus({ preventScroll: true });
+  }
+  f.addEventListener('change', function (e) {
+    var q = e.target.closest('.q'); if (!q) return;
+    ans[Number(q.dataset.q)] = Number(e.target.value);
+    setTimeout(function () { if (at + 1 < qs.length) { show(at + 1); var n = qs[at].querySelector('input'); if (n) n.focus({ preventScroll: true }); } else result(); }, 260);
+  });
+  back.addEventListener('click', function () { if (at > 0) show(at - 1); });
+  f.querySelector('[data-restart]').addEventListener('click', function () { ans = []; f.reset(); show(0); });
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var n = f.querySelector('.r-gate .form-note');
+    n.textContent = 'This is a design concept, so nothing was sent. On the live site this emails your result.';
+  });
+  show(0);
+})();
+
 (function () {
   var root = document.documentElement;
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -75,24 +115,7 @@
     cur.style.transform = 'translate3d(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px,0)';
   }
 
-  // ---- floating photo on the service index
-  var fl = document.querySelector('.float-img'), fis = fl ? fl.querySelectorAll('.fi') : [];
-  var fx = mouse.x, fy = mouse.y, rot = 0, flOn = false;
-  if (fl && fine) document.querySelectorAll('.idx li').forEach(function (li) {
-    li.addEventListener('pointerenter', function () {
-      flOn = true; fl.classList.add('on');
-      fis.forEach(function (f, k) { f.classList.toggle('on', String(k) === li.dataset.fi); });
-    });
-    li.addEventListener('pointerleave', function () { flOn = false; fl.classList.remove('on'); });
-  });
-  function floater() {
-    if (!fl || !flOn) return;
-    fx = lerp(fx, mouse.x, 0.12); fy = lerp(fy, mouse.y, 0.12);
-    rot = lerp(rot, clamp(mouse.vx * 0.6, -12, 12), 0.1); mouse.vx *= 0.85;
-    fl.style.transform = 'translate3d(' + (fx + 40).toFixed(1) + 'px,' + fy.toFixed(1) + 'px,0) translate(-0%,-50%) rotate(' + rot.toFixed(2) + 'deg)';
-  }
-
-  function frame(now) { hero(now); marquee(); cursor(); floater(); requestAnimationFrame(frame); }
+  function frame(now) { hero(now); marquee(); cursor(); requestAnimationFrame(frame); }
   requestAnimationFrame(frame);
 
   // ---- magnetic buttons
@@ -125,29 +148,10 @@
     document.querySelectorAll('.photo').forEach(function (p) { if (!p.closest('.float-img')) pio.observe(p); });
   }
 
-  // ---- leaders light up as they pass the middle of the screen; the call counts up
+  // ---- leaders light up as they pass the middle of the screen
   if ('IntersectionObserver' in window) {
     var lio = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('lit'); }); }, { rootMargin: '-42% 0px -42% 0px' });
     document.querySelectorAll('.leaders li').forEach(function (li) { lio.observe(li); });
-    var cnt = document.querySelector('.count');
-    if (cnt) new IntersectionObserver(function (es, o) {
-      if (!es[0].isIntersecting) return; o.disconnect();
-      var to = Number(cnt.dataset.to), t0 = performance.now();
-      (function tick(now) { var k = Math.min(1, (now - t0) / 1300); cnt.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); })(t0);
-    }, { threshold: 0.6 }).observe(cnt);
-  }
-
-  // ---- videos: drag to scroll, with a little momentum
-  var vs = document.querySelector('.videos');
-  if (vs && fine) {
-    var down = false, sx = 0, sl = 0, v = 0, lx = 0, moved = 0;
-    vs.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse') return; down = true; moved = 0; sx = lx = e.clientX; sl = vs.scrollLeft; v = 0; vs.classList.add('dragging'); });
-    addEventListener('pointermove', function (e) { if (!down) return; v = e.clientX - lx; lx = e.clientX; moved += Math.abs(v); vs.scrollLeft = sl - (e.clientX - sx); });
-    addEventListener('pointerup', function () {
-      if (!down) return; down = false; vs.classList.remove('dragging');
-      (function glide() { v *= 0.93; vs.scrollLeft -= v; if (Math.abs(v) > 0.5) requestAnimationFrame(glide); })();
-    });
-    vs.addEventListener('click', function (e) { if (moved > 6) { e.preventDefault(); e.stopPropagation(); } }, true);
   }
 
   // ---- footer spotlight across the wordmark
@@ -176,5 +180,13 @@
       }
     });
     addEventListener('load', function () { ScrollTrigger.refresh(); });
+    // lazy photos and late fonts change the page height after load; re-measure so the pin starts where the stories really are
+    if ('ResizeObserver' in window) {
+      var rh = document.body.offsetHeight, rt;
+      new ResizeObserver(function () {
+        var h = document.body.offsetHeight; if (Math.abs(h - rh) < 2) return; rh = h;
+        clearTimeout(rt); rt = setTimeout(function () { ScrollTrigger.refresh(); }, 150);
+      }).observe(document.querySelector('main'));
+    }
   }
 })();

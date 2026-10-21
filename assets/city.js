@@ -255,14 +255,15 @@ function start() {
   birds(0);
 
   function paint() {
-    const dark = root.dataset.theme !== 'light', cobalt = root.dataset.concept === 'cobalt';
+    // Punk is a night city: lit windows in acid, traffic in hot pink
+    const punk = root.dataset.theme === 'punk', dark = root.dataset.theme !== 'light', cobalt = root.dataset.concept === 'cobalt';
     const fg = new THREE.Color(css('--fg')), bg = new THREE.Color(css('--bg')), acc = new THREE.Color(css('--accent'));
     const raised = new THREE.Color(css('--raised')), line = new THREE.Color(css('--line'));
     scene.fog.color.copy(bg); ground.material.color.copy(raised);
     renderer.setClearColor(bg, SHOT ? 1 : 0); renderer.autoClear = !shared;
     // trees are green in every concept: nature is the one colour the city keeps
     const leaf = new THREE.Color(dark ? (cobalt ? '#4FBF6A' : '#56B567') : (cobalt ? '#3A9A52' : '#3F9150')), bark = new THREE.Color(dark ? '#5B4A3C' : '#6E5A47');
-    const warm = cobalt ? new THREE.Color('#FFFFFF') : new THREE.Color(dark ? '#F3E3B5' : '#46538A');
+    const warm = punk ? acc.clone() : cobalt ? new THREE.Color('#FFFFFF') : new THREE.Color(dark ? '#F3E3B5' : '#46538A');
     const building = fg.clone().lerp(bg, dark ? 0.14 : 0.06), c = new THREE.Color();
     mat.emissive.copy(fg).multiplyScalar(dark ? 0.08 : 0);
     lit.forEach((cb, i) => {
@@ -286,7 +287,7 @@ function start() {
     markMesh.material.color.copy(fg).lerp(line, dark ? 0.55 : 0.4);
     posts.material.color.copy(line).lerp(fg, 0.3);
     heads.material.color.copy(dark ? warm : line);
-    cars.material.color.copy(dark ? warm : fg);
+    cars.material.color.copy(punk ? new THREE.Color(css('--hot') || '#FF2E88') : dark ? warm : fg);
     boats.material.color.copy(fg).lerp(bg, 0.15);
     wingMat.color.copy(fg).lerp(bg, dark ? 0.1 : 0.2); wingMat.emissive.copy(fg).multiplyScalar(dark ? 0.25 : 0);
   }

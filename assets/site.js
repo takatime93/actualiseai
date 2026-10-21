@@ -2,10 +2,18 @@
 (function () {
   var root = document.documentElement;
   function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-  function dark() { return root.dataset.theme !== 'light'; }
   var modes = document.querySelectorAll('[data-mode]');
-  function paintMode() { var d = dark(); modes.forEach(function (b) { b.setAttribute('aria-pressed', String((b.dataset.mode === 'dark') === d)); }); }
-  modes.forEach(function (b) { b.addEventListener('click', function () { root.dataset.theme = b.dataset.mode; store('aai-theme', b.dataset.mode); paintMode(); }); });
+  function paintMode() { var m = root.dataset.theme || 'dark'; modes.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === m)); }); }
+  // switching to Punk glitches the screen once
+  function glitch() {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var x = document.createElement('div'); x.className = 'glitch'; x.setAttribute('aria-hidden', 'true'); document.body.appendChild(x);
+    x.addEventListener('animationend', function () { x.remove(); });
+  }
+  modes.forEach(function (b) { b.addEventListener('click', function () {
+    var was = root.dataset.theme; root.dataset.theme = b.dataset.mode; store('aai-theme', b.dataset.mode); paintMode();
+    if (b.dataset.mode === 'punk') { if (window.aaiPunkFonts) aaiPunkFonts(); if (was !== 'punk') glitch(); }
+  }); });
   paintMode();
   var disp = document.querySelector('.display'), dbtn = document.getElementById('display-btn');
   if (disp && dbtn) {
