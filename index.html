@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="assets/site.css?v=14a024701f">
+<link rel="stylesheet" href="assets/site.css?v=c5507094df">
 <style>
 /* homepage: motion is the material. Everything below still reads with motion off. */
 .sl { display: flex; gap: 14px; align-items: baseline }
@@ -491,15 +491,16 @@ fieldset.field legend { font-family: var(--mono); font-size: 12px; letter-spacin
   </div>
 </footer>
 
-<script src="assets/site.js?v=14a024701f"></script>
+<script src="assets/site.js?v=c5507094df"></script>
 <div class="gub" data-gub data-home="">
-  <section class="gub-panel" id="gub-panel" role="dialog" aria-label="Actualise AI front desk (demo)" hidden>
+  <section class="gub-panel" id="gub-panel" role="dialog" aria-label="Chat with Sophie, Actualise’s AI assistant (demo)" hidden>
     <div class="gub-vid"><video class="gub-face" src="assets/frontdesk.mp4" poster="assets/frontdesk.jpg" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video>
       <p class="gub-status"><i></i><span>We’re open</span></p>
       <button class="gub-back" type="button" aria-label="Back to the start" hidden>←</button>
-      <div class="gub-hello"><h3>Hello from Actualise AI <span aria-hidden="true">👋</span></h3><p class="gub-sub">Our AI front desk can help right now, or take a message for the team.</p></div>
-      <div class="gub-speak" aria-hidden="true"><span class="gub-wave"><i style="--k: 0"></i><i style="--k: 1"></i><i style="--k: 2"></i><i style="--k: 3"></i><i style="--k: 4"></i></span><p class="gub-cap"></p></div>
+      <div class="gub-hello"><h3>Hi, I’m Sophie <span aria-hidden="true">👋</span></h3><p class="gub-sub">Actualise AI. I can help right now, or take a message for the team.</p></div>
+      <div class="gub-speak" aria-hidden="true"><p class="gub-who"><b>Sophie</b> · Actualise AI assistant</p><span class="gub-wave"><i style="--k: 0"></i><i style="--k: 1"></i><i style="--k: 2"></i><i style="--k: 3"></i><i style="--k: 4"></i></span><p class="gub-cap"></p></div>
     </div>
+    <div class="gub-bar"><button class="gub-bk" type="button" aria-label="Back to the start">‹</button><img class="gub-av" src="assets/frontdesk.jpg" alt=""><div class="gub-bt"><p><b>Sophie</b></p><p class="gub-bs"><i></i>Actualise AI assistant</p></div><button class="gub-ic" type="button" data-go="call" aria-label="Call Sophie"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></button><button class="gub-ic gub-x" type="button" aria-label="Close the chat">×</button></div>
     <div class="gub-start">
       <button class="gub-pick chat" type="button" data-go="chat"><span>Chat with us</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></button>
       <button class="gub-pick talk" type="button" data-go="call"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Talk to us</span><b aria-hidden="true">›</b></button>
@@ -509,16 +510,16 @@ fieldset.field legend { font-family: var(--mono); font-size: 12px; letter-spacin
       <div class="gub-chips"></div>
       <form class="gub-form"><input aria-label="Type your message" placeholder="Type your message…" autocomplete="off"><button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></button></form>
     </div>
-    <div class="gub-call" hidden><p class="lab">Voice call · <span class="gub-clock">0:00</span></p><p>In the live version you talk to the front desk out loud, and it can book a time with the team.</p><button class="btn gub-end" type="button">End call</button></div>
+    <div class="gub-call" hidden><p class="lab">Voice call · <span class="gub-clock">0:00</span></p><p>In the live version you talk to Sophie out loud, and she can book a time with the team.</p><button class="btn gub-end" type="button">End call</button></div>
     <p class="gub-foot">Actualise AI · concept demo · nothing is sent</p>
   </section>
-  <button class="gub-launch" type="button" aria-expanded="false" aria-controls="gub-panel" aria-label="Open the Actualise AI front desk (demo)"><video class="gub-face" src="assets/frontdesk.mp4" poster="assets/frontdesk.jpg" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video><span class="gub-lcap">Ask our AI front desk</span><i class="gub-live" aria-hidden="true"></i></button>
-  <button class="gub-min" type="button" aria-label="Close the front desk" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <button class="gub-launch" type="button" aria-expanded="false" aria-controls="gub-panel" aria-label="Chat now"><video class="gub-face" src="assets/frontdesk.mp4" poster="assets/frontdesk.jpg" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video><span class="gub-lcap">Chat now<small>Sophie · Actualise AI</small></span><i class="gub-live" aria-hidden="true"></i></button>
+  <button class="gub-min" type="button" aria-label="Close the chat" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 </div>
-<script src="assets/chat.js?v=14a024701f" defer></script>
+<script src="assets/chat.js?v=c5507094df" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-<script src="assets/home.js?v=14a024701f" defer></script>
-<script type="module" src="assets/city.js?v=14a024701f"></script>
+<script src="assets/home.js?v=c5507094df" defer></script>
+<script type="module" src="assets/city.js?v=c5507094df"></script>
 </body>
 </html>
