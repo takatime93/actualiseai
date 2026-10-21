@@ -126,6 +126,13 @@
     sec.classList.add('playing'); s.replaceWith(c);
   });
 
+  // the Motion switch on the Punk hero turns the theme's motion off and on, and is remembered
+  document.querySelectorAll('[data-fx]').forEach(function (b) {
+    function paint() { var off = root.classList.contains('fx-off'); b.setAttribute('aria-pressed', String(!off)); b.textContent = off ? 'Motion off' : 'Motion on'; }
+    b.addEventListener('click', function () { root.classList.toggle('fx-off'); store('aai-fx', root.classList.contains('fx-off') ? 'off' : 'on'); paint(); dispatchEvent(new Event('aai-fx')); });
+    paint();
+  });
+
   // Arrival motion for the two punk themes: Punk slams in and decodes its labels; Pop Punk glides. Off with reduced motion.
   (function () {
     if (calm || !('IntersectionObserver' in window)) return;
@@ -156,8 +163,8 @@
       document.querySelectorAll('.pk-in').forEach(function (el) { el.classList.remove('pk-in'); });
       document.querySelectorAll('[data-dec]').forEach(function (el) { delete el.dataset.dec; });
     }
-    function sync() { var c = root.dataset.concept; if (c === 'punk' || c === 'cobalt') on(c); else off(); }
-    new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-concept'] }); sync();
+    function sync() { var c = root.dataset.concept; if ((c === 'punk' && !root.classList.contains('fx-off')) || c === 'cobalt') on(c); else off(); }
+    new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-concept'] }); addEventListener('aai-fx', sync); sync();
   })();
 
   document.querySelectorAll('form[data-concept-form]').forEach(function (f) {

@@ -369,7 +369,6 @@ footer p { color: var(--mute); font-size: 15px; max-width: 56ch }
 @keyframes scan { 0% { transform: translateY(0); opacity: 0 } 6% { opacity: .55 } 60% { opacity: .55 } 70%, 100% { transform: translateY(calc(100svh - var(--hdr))); opacity: 0 } }
 /* arrivals: cards and headings slam in, stepped */
 .pk-ready :is(.sec h2, .svc-card, .bot, .steps li, .g, .quiz, .st-panel, .faq details, .leaders li):not(.pk-in) { opacity: 0 }
-.pk-ready .pk-in { animation: slam .42s steps(5, end) backwards }
 @keyframes slam { 0% { opacity: 0; transform: translateY(48px) scale(1.06) skewX(-6deg) } 40% { opacity: 1; transform: translateY(-6px) scale(1) skewX(3deg) } 70% { transform: translateY(2px) skewX(-1deg) } 100% { opacity: 1; transform: none } }
 /* the cursor becomes a crosshair */
 :root[data-concept="punk"] .cur-ring { border-radius: 0; rotate: 45deg; border-color: var(--acid); mix-blend-mode: normal }
@@ -379,6 +378,67 @@ footer p { color: var(--mute); font-size: 15px; max-width: 56ch }
 :root[data-concept="punk"] :is(.svc-card, .g, .bot):hover .photo img { animation: rgb-split .5s steps(4, end) 1 }
 @keyframes rgb-split { 0% { transform: translate(0) } 25% { transform: translate(-4px, 1px); filter: grayscale(1) contrast(1.5) drop-shadow(6px 0 0 var(--acid)) } 50% { transform: translate(3px, -1px); filter: grayscale(1) contrast(1.5) drop-shadow(-6px 0 0 var(--hot)) } 75% { transform: translate(-1px, 0) } 100% { transform: none } }
 @media (prefers-reduced-motion: reduce) { .pk-ready :is(.sec h2, .svc-card, .bot, .steps li, .g, .quiz, .st-panel, .faq details, .leaders li):not(.pk-in) { opacity: 1 } }
+/* ---------- Punk, future edition: inspired by game interfaces, without becoming a game ----------
+   From game UI (Persona 5, Cyberpunk 2077, Zenless Zone Zero, Hi-Fi Rush, Ruiner): diagonals as the baseline,
+   readouts that look like working instruments, two loud colours, a shared beat, impact on hits.
+   Body copy stays level and calm; the chaos lives in the frame. Digital things step, physical things spring. */
+:root[data-concept="punk"] { --t-slam: 260ms; --ease-slam: cubic-bezier(.2, 1.4, .4, 1); --slant: 3.2vw }
+/* hero: quiet corner brackets and the Motion switch */
+.pk-hud { position: absolute; inset: clamp(14px, 2.4vw, 30px); z-index: 4; pointer-events: none; font-family: var(--type) }
+.pk-hud .pc { position: absolute; width: 34px; height: 34px; border: 3px solid var(--acid) }
+.pk-hud .tl { left: 0; top: 0; border-right: 0; border-bottom: 0 } .pk-hud .tr { right: 0; top: 0; border-left: 0; border-bottom: 0 }
+.pk-hud .bl { left: 0; bottom: 0; border-right: 0; border-top: 0 } .pk-hud .br { right: 0; bottom: 0; border-left: 0; border-top: 0 }
+.pk-fx { position: absolute; right: 48px; top: 6px; pointer-events: auto; font: 700 11px/1 var(--type); letter-spacing: .08em; text-transform: uppercase; color: #0B0B0B; background: var(--acid); border: 0; padding: 8px 12px; cursor: pointer; transform: skewX(-12deg); box-shadow: 3px 3px 0 var(--hot) }
+.fx-off .pk-fx { background: transparent; color: var(--fg); outline: 2px solid var(--fg) }
+@media (max-width: 900px) { .pk-hud { bottom: auto; height: 50% } .pk-fx { bottom: auto; top: 8px; right: 44px } }
+/* slanted sections: the diagonal is the baseline */
+:root[data-concept="punk"] :is(#services, #how, #faq) { background: var(--raised); --ground: var(--raised); clip-path: polygon(0 var(--slant), 100% 0, 100% calc(100% - var(--slant)), 0 100%); padding-block: calc(clamp(72px, 10vw, 140px) + var(--slant)); border-bottom: 0; margin-block: calc(var(--slant) * -0.5) }
+:root[data-concept="punk"] :is(#services, #how, #faq) :is(.svc-card, .steps li) { background: var(--bg); --ground: var(--bg) }
+/* labels: skewed tags with level text inside */
+:root[data-concept="punk"] .sl { transform: skewX(-12deg); rotate: 0deg }
+:root[data-concept="punk"] .sl > * { display: inline-block; transform: skewX(12deg) }
+/* hazard tape around the marquee; the stripes drift on their own loop */
+:root[data-concept="punk"] .marquee::before, :root[data-concept="punk"] .marquee::after { content: ""; position: absolute; left: 0; right: 0; height: 12px; background: repeating-linear-gradient(-45deg, #0B0B0B 0 10px, var(--acid) 10px 20px); background-size: 28.28px 28.28px; animation: drift 4s linear infinite }
+:root[data-concept="punk"] .marquee::before { top: 0 } :root[data-concept="punk"] .marquee::after { bottom: 0 }
+@keyframes drift { to { background-position: 56.56px 0 } }
+:root[data-concept="punk"] .marquee { box-shadow: none; margin-block: 40px; padding-block: calc(clamp(14px, 2vw, 26px) + 12px) }
+:root[data-concept="punk"] .marquee:hover .mq-track { animation-play-state: paused }
+/* services: hover one and it swells; the other steps back */
+:root[data-concept="punk"] .svc-card { transition: scale .26s var(--ease-slam), opacity .2s, filter .2s }
+:root[data-concept="punk"] .svc:hover .svc-card:not(:hover) { opacity: .55; scale: .97; filter: grayscale(.6) }
+:root[data-concept="punk"] .svc-card:hover { scale: 1.02 }
+:root[data-concept="punk"] .svc-top .num { font-family: var(--display); font-weight: 400; font-size: clamp(56px, 6vw, 96px); line-height: .8; background: none; color: transparent; -webkit-text-stroke: 2px var(--acid); rotate: 0deg; padding: 0 }
+:root[data-concept="punk"] .st-panel { clip-path: polygon(0 0, calc(100% - 26px) 0, 100% 26px, 100% 100%, 26px 100%, 0 calc(100% - 26px)) }
+/* steps: climbing on the diagonal */
+:root[data-concept="punk"] .steps li:nth-child(2) { margin-top: 48px } :root[data-concept="punk"] .steps li:nth-child(3) { margin-top: 96px }
+@media (max-width: 900px) { :root[data-concept="punk"] .steps li:nth-child(n) { margin-top: 0 } }
+/* readiness check: a segmented progress bar and a skewed question box */
+:root[data-concept="punk"] .q-bar { height: 12px; background: repeating-linear-gradient(90deg, var(--line) 0 18px, transparent 18px 22px); position: relative }
+:root[data-concept="punk"] .q-bar i { background: repeating-linear-gradient(90deg, var(--acid) 0 18px, transparent 18px 22px); transition: width .3s steps(4) }
+:root[data-concept="punk"] .q-t { background: var(--bg); border: 2px solid var(--fg); padding: 12px 16px; transform: skewX(-4deg) }
+/* scan on hover: brackets snap onto images, Kiroshi-style */
+:root[data-concept="punk"] :is(.svc-img, .g-img, .bot-img) { position: relative }
+:root[data-concept="punk"] :is(.svc-card, .g, .bot):hover :is(.svc-img, .g-img)::before { content: ""; position: absolute; inset: 10px; z-index: 2; pointer-events: none; background: linear-gradient(var(--acid), var(--acid)) 0 0 / 22px 3px no-repeat, linear-gradient(var(--acid), var(--acid)) 0 0 / 3px 22px no-repeat, linear-gradient(var(--acid), var(--acid)) 100% 0 / 22px 3px no-repeat, linear-gradient(var(--acid), var(--acid)) 100% 0 / 3px 22px no-repeat, linear-gradient(var(--acid), var(--acid)) 0 100% / 22px 3px no-repeat, linear-gradient(var(--acid), var(--acid)) 0 100% / 3px 22px no-repeat, linear-gradient(var(--acid), var(--acid)) 100% 100% / 22px 3px no-repeat, linear-gradient(var(--acid), var(--acid)) 100% 100% / 3px 22px no-repeat; animation: snap .09s steps(2) both }
+@keyframes snap { from { transform: scale(1.12); opacity: 0 } to { transform: none; opacity: 1 } }
+/* questions: a terminal */
+:root[data-concept="punk"] .faq summary { font-family: var(--type); font-weight: 700; font-size: clamp(16px, 1.5vw, 20px); letter-spacing: 0 }
+:root[data-concept="punk"] .faq summary > span:not(.num)::before { content: "> "; color: var(--acid) }
+:root[data-concept="punk"] .faq details[open] summary > span:not(.num)::after { content: "_"; color: var(--acid); animation: caret 1.2s steps(1) infinite }
+@keyframes caret { 50% { opacity: 0 } }
+/* contact: the confirmation is stamped */
+:root[data-concept="punk"] form.drop .form-note:not(:empty) { font: 700 13px/1.4 var(--type); text-transform: uppercase; color: var(--hot); border: 2px solid var(--hot); padding: 10px 12px; rotate: -2deg; width: fit-content }
+/* motion system: slams spring, glitches step, impacts shake the container, never the text inside it */
+.pk-ready .pk-in { animation: slam2 var(--t-slam) var(--ease-slam) backwards }
+@keyframes slam2 { 0% { opacity: 0; transform: translateY(56px) skewX(-8deg) scale(1.04) } 100% { opacity: 1; transform: none } }
+:root[data-concept="punk"] .hit { animation: hit 180ms steps(6) 1 }
+@keyframes hit { 0% { transform: translate(6px, -3px) } 33% { transform: translate(-4px, 2px) } 66% { transform: translate(2px, -1px) } 100% { transform: none } }
+:root[data-beat="1"][data-concept="punk"] .gub-live { transform: scale(1.3) }
+/* Motion off: everything still, the layout stays */
+:root.fx-off[data-concept="punk"] *, :root.fx-off[data-concept="punk"] *::before, :root.fx-off[data-concept="punk"] *::after { animation: none !important; transition: none !important }
+:root.fx-off[data-concept="punk"] .mega[data-text]::before, :root.fx-off[data-concept="punk"] .mega[data-text]::after, :root.fx-off[data-concept="punk"] .city::before { display: none }
+/* light mode: a quieter HUD on paper */
+:root[data-concept="punk"][data-theme="light"] .pk-hud .pc { border-color: #0B0B0B }
+:root[data-concept="punk"][data-theme="light"] .svc-top .num { -webkit-text-stroke-color: #0B0B0B }
 /* switching to Punk: one quick glitch of offset colour bands */
 .glitch { position: fixed; inset: 0; z-index: 120; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(255, 46, 136, .85) 0 14px, transparent 14px 46px, rgba(198, 255, 0, .8) 46px 54px, transparent 54px 110px); mix-blend-mode: hard-light; animation: glitch .36s steps(1, end) both }
 @keyframes glitch { 0% { transform: translateX(-4%); opacity: 1 } 20% { transform: translateX(3%) scaleY(1.6); opacity: .9 } 40% { transform: translateX(-2%) translateY(30px); opacity: 1 } 60% { transform: translateX(5%) scaleY(.6); opacity: .7 } 80% { transform: translateX(-1%) translateY(-20px); opacity: .5 } 100% { opacity: 0 } }

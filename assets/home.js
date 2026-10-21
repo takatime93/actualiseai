@@ -30,7 +30,8 @@
     setTimeout(function () { if (at + 1 < qs.length) { show(at + 1); var n = qs[at].querySelector('input'); if (n) n.focus({ preventScroll: true }); } else result(); }, 260);
   });
   back.addEventListener('click', function () { if (at > 0) show(at - 1); });
-  f.querySelector('[data-restart]').addEventListener('click', function () { ans = []; f.reset(); show(0); });
+  function restart() { ans = []; f.reset(); show(0); }
+  f.querySelector('[data-restart]').addEventListener('click', restart);
   f.addEventListener('submit', function (e) {
     e.preventDefault();
     var n = f.querySelector('.r-gate .form-note');
@@ -120,11 +121,19 @@
   }
 
   // ---- Pop Punk hero HUD: the time in Sydney
-  var hud = document.querySelector('.hud'), hclock = hud && hud.querySelector('[data-clock]');
-  if (hud) {
-    var tick = function () { try { hclock.textContent = new Intl.DateTimeFormat('en-AU', { timeZone: 'Australia/Sydney', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date()); } catch (e) {} };
+  var clocks = document.querySelectorAll('[data-clock]');
+  if (clocks.length) {
+    var tick = function () { try { var t = new Intl.DateTimeFormat('en-AU', { timeZone: 'Australia/Sydney', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date()); clocks.forEach(function (c) { c.textContent = t; }); } catch (e) {} };
     tick(); setInterval(tick, 20000);
   }
+
+  // ---- Punk: one beat for the whole interface (100 BPM), and a short impact shake on hits
+  var punkFx = function () { return root.dataset.concept === 'punk' && !root.classList.contains('fx-off'); };
+  setInterval(function () { if (punkFx()) root.dataset.beat = root.dataset.beat === '1' ? '0' : '1'; else if (root.dataset.beat) delete root.dataset.beat; }, 600);
+  function hit(el) { if (!punkFx() || !el) return; el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); }
+  document.addEventListener('click', function (e) { var b = e.target.closest('.btn'); if (b) hit(b); });
+  document.addEventListener('change', function (e) { if (e.target.closest('.quiz')) hit(e.target.closest('.quiz')); });
+  document.addEventListener('animationend', function (e) { if (e.animationName === 'hit') e.target.classList.remove('hit'); });
   function frame(now) { hero(now); marquee(); cursor(); requestAnimationFrame(frame); }
   requestAnimationFrame(frame);
 
