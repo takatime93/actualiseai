@@ -276,7 +276,7 @@ function start() {
   }
   const treeColor = (cb, i, c) => cb[4] === 1 ? c.copy(pal.bark) : c.copy(pal.leaf).offsetHSL(((i * 37) % 11 - 5) * 0.006, 0, ((i * 53) % 9 - 4) * 0.02);
   function paint() {
-    // Punk: windows lit in acid; Pop Punk: windows and traffic in zest
+    // Punk: windows lit in acid; Brutalism: windows in link blue
     const punk = root.dataset.concept === 'punk', dark = root.dataset.theme !== 'light', cobalt = root.dataset.concept === 'cobalt';
     const fg = new THREE.Color(css('--fg')), bg = new THREE.Color(css('--bg')), acc = new THREE.Color(css('--accent'));
     const raised = new THREE.Color(css('--raised')), line = new THREE.Color(css('--line'));
@@ -284,7 +284,7 @@ function start() {
     renderer.setClearColor(bg, SHOT ? 1 : 0); renderer.autoClear = !shared;
     // trees are green in every concept: nature is the one colour the city keeps
     const leaf = new THREE.Color(dark ? (cobalt ? '#4FBF6A' : '#56B567') : (cobalt ? '#3A9A52' : '#3F9150')), bark = new THREE.Color(dark ? '#5B4A3C' : '#6E5A47');
-    const warm = punk && dark ? new THREE.Color('#C6FF00') : cobalt && dark ? new THREE.Color('#D4FF3F') : cobalt ? new THREE.Color('#FFFFFF') : new THREE.Color(dark ? '#F3E3B5' : '#46538A');
+    const warm = punk && dark ? new THREE.Color('#C6FF00') : cobalt && dark ? new THREE.Color('#7E8CFF') : cobalt ? new THREE.Color('#1C30D9') : new THREE.Color(dark ? '#F3E3B5' : '#46538A');
     const building = fg.clone().lerp(bg, dark ? 0.14 : 0.06), c = new THREE.Color();
     Object.assign(pal, { building, bg, dark, acc, bark, leaf });
     mat.emissive.copy(fg).multiplyScalar(dark ? 0.08 : 0);
@@ -302,7 +302,7 @@ function start() {
     markMesh.material.color.copy(fg).lerp(line, dark ? 0.55 : 0.4);
     posts.material.color.copy(line).lerp(fg, 0.3);
     heads.material.color.copy(dark ? warm : line);
-    cars.material.color.copy(punk ? fg.clone().lerp(bg, 0.1) : cobalt ? new THREE.Color('#D4FF3F') : dark ? warm : fg);
+    cars.material.color.copy(punk ? fg.clone().lerp(bg, 0.1) : cobalt ? fg.clone() : dark ? warm : fg);
     boats.material.color.copy(fg).lerp(bg, 0.15);
     wingMat.color.copy(fg).lerp(bg, dark ? 0.1 : 0.2); wingMat.emissive.copy(fg).multiplyScalar(dark ? 0.25 : 0);
   }
@@ -451,7 +451,7 @@ function start() {
   // Each lot owns a run of slots, so only the blocks that are changing are touched each frame.
   const changing = new Set(), freeTrees = [];
   for (let i = 0; i + 20 <= POOL; i += 20) freeTrees.push(T0 + i);
-  let nextChange = 0, nextWorks = 0, works = null, shadowTick = 0;
+  let nextChange = 0, nextWorks = 0, works = null, shadowTick = 0, liveFrom = 0;
   const touch = (attr, i0, n, size) => { if (n <= 0) return; if (attr.addUpdateRange) attr.addUpdateRange(i0 * size, n * size); else { attr.updateRange.offset = i0 * size; attr.updateRange.count = n * size; } attr.needsUpdate = true; };
   const cubeAt = (mesh, i, cb, p, drop) => {
     if (!cb || p <= 0.001) { mesh.setMatrixAt(i, ZERO); return; }
@@ -494,7 +494,7 @@ function start() {
     }
     if (l.trees.length) trees3d.instanceColor.needsUpdate = true;
   }
-  function demolish(l, now) { l.ch = { phase: 'down', t0: now, top: topOf(l) }; changing.add(l); }
+  function demolish(l, now) { l.pace = 0.75 + rnd() * 0.8; l.ch = { phase: 'down', t0: now, top: topOf(l) }; changing.add(l); }
   function swap(l, now) {
     // the old block is gone: clear its slots, then decide what goes up instead
     for (const s0 of l.trees || []) { for (let i = 0; i < 20; i++) { leafy[s0 + i] = null; trees3d.setMatrixAt(s0 + i, ZERO); } freeTrees.push(s0); touch(trees3d.instanceMatrix, s0, 20, 16); }
@@ -507,10 +507,12 @@ function start() {
     for (let i = 0; i < l.LC; i++) { const cb = a[i] || null; lit[l.L0 + i] = cb; if (cb) city.setColorAt(l.L0 + i, litColor(cb, l.L0 + i, col)); }
     for (let i = 0; i < l.GC; i++) glow[l.G0 + i] = g[i] || null;
     touch(city.instanceColor, l.L0, l.LC, 3);
-    l.ch = { phase: 'up', t0: now, top: a.reduce((m, c) => Math.max(m, c[1]), 0) };
+    // the lot stays empty for a moment before the new building starts to rise
+    l.ch = { phase: 'up', t0: now + (0.9 + rnd() * 1.6) * 1000, top: a.reduce((m, c) => Math.max(m, c[1]), 0) };
   }
   function step(l, now) {
-    const t = (now - l.ch.t0) / 1000, top = l.ch.top, down = l.ch.phase === 'down';
+    const t = (now - l.ch.t0) / 1000 / l.pace, top = l.ch.top, down = l.ch.phase === 'down';
+    if (t < 0) return;   // the pause between coming down and going up
     const P_ = (cb, i) => down ? 1 - ease((t - (top - cb[1]) * 0.03 - ((i * 7) % 5) * 0.03) / 0.4) : ease((t - cb[1] * 0.028 - ((i * 7) % 5) * 0.04) / 0.6);
     for (let i = l.L0; i < l.L0 + l.LC; i++) cubeAt(city, i, lit[i], lit[i] ? P_(lit[i], i) : 0, down);
     for (let i = l.G0; i < l.G0 + l.GC; i++) cubeAt(wins, i, glow[i], glow[i] ? P_(glow[i], i) : 0, down);
@@ -541,12 +543,13 @@ function start() {
   }
   function living(now) {
     if (!live || !risen) return;
-    if (!nextChange) { nextChange = now + 1800; nextWorks = now + 6000; }
+    if (!nextChange) { nextChange = now + 1800; nextWorks = now + 6000; liveFrom = now; }
     if (now > nextChange && changing.size < (small ? 2 : 3)) {
-      const pick = lots.filter((l) => !l.ch && l.d < NV * 0.6);
-      // of three random candidates, the one nearest the middle, so most changes happen where people are looking
-      if (pick.length) demolish([0, 1, 2].map(() => pick[rnd() * pick.length | 0]).sort((a, b) => a.d - b.d)[0], now);
-      nextChange = now + (small ? 4200 : 2400) * (0.7 + rnd() * 0.6);
+      // changes begin downtown and spread outward over about two minutes, then happen anywhere in the city
+      const reach = Math.min(H * 0.95, NV * 0.22 + (now - liveFrom) / 1000 * (H * 0.75 / 120));
+      const pick = lots.filter((l) => !l.ch && l.d < reach);
+      if (pick.length) demolish(pick[rnd() * pick.length | 0], now);
+      nextChange = now + (small ? 4800 : 3000) * (0.6 + rnd() * 0.9);
     }
     changing.forEach((l) => step(l, now));
     if (changing.size && ++shadowTick % 12 === 0) renderer.shadowMap.needsUpdate = true;

@@ -16,7 +16,7 @@
   function paintConcept() { cbs.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.concept === root.dataset.concept)); }); }
   cbs.forEach(function (b) { b.addEventListener('click', function () {
     var was = root.dataset.concept; root.dataset.concept = b.dataset.concept; store('aai-concept', b.dataset.concept); paintConcept();
-    if (b.dataset.concept === 'punk' && window.aaiPunkFonts) aaiPunkFonts();
+    if (window.aaiFonts) aaiFonts(b.dataset.concept);
   }); });
   paintConcept();
 
@@ -55,7 +55,7 @@
   var calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.querySelectorAll('a[data-nav]').forEach(function (a) {
     a.addEventListener('click', function (e) {
-      if (calm || e.metaKey || e.ctrlKey || e.shiftKey || a.getAttribute('aria-current') === 'page') return;
+      if (calm || root.dataset.concept === 'cobalt' || e.metaKey || e.ctrlKey || e.shiftKey || a.getAttribute('aria-current') === 'page') return;
       e.preventDefault();
       var v = document.createElement('div'); v.className = 'veil leave'; document.body.appendChild(v);
       try { sessionStorage.setItem('aai-t', '1'); } catch (x) {}
@@ -120,13 +120,13 @@
     sec.classList.add('playing'); s.replaceWith(c);
   });
 
-  // Arrival motion for the two punk themes: Punk rises briefly, Pop Punk glides. Off with reduced motion.
+  // Arrival motion for Punk: a short rise, once per element. Off with reduced motion; Brutalism has none.
   (function () {
     if (calm || !('IntersectionObserver' in window)) return;
     var SEL = '.sec h2, .svc-card, .bot, .steps li, .g, .quiz, .st-panel, .faq details, .leaders li', io = null, mode = '';
     function on(m) {
       if (io && mode === m) return; off(); mode = m;
-      root.classList.add(m === 'punk' ? 'pk-ready' : 'pp-ready');
+      root.classList.add('pk-ready');
       io = new IntersectionObserver(function (es) {
         es.forEach(function (e) {
           if (!e.isIntersecting) return; io.unobserve(e.target);
@@ -136,11 +136,11 @@
       document.querySelectorAll(SEL + ', .sl').forEach(function (el) { io.observe(el); });
     }
     function off() {
-      if (!io) return; io.disconnect(); io = null; mode = ''; root.classList.remove('pk-ready', 'pp-ready');
+      if (!io) return; io.disconnect(); io = null; mode = ''; root.classList.remove('pk-ready');
       document.querySelectorAll('.pk-in').forEach(function (el) { el.classList.remove('pk-in'); });
       document.querySelectorAll('[data-dec]').forEach(function (el) { delete el.dataset.dec; });
     }
-    function sync() { var c = root.dataset.concept; if (c === 'punk' || c === 'cobalt') on(c); else off(); }
+    function sync() { if (root.dataset.concept === 'punk') on('punk'); else off(); }
     new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-concept'] }); sync();
   })();
 

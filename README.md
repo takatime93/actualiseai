@@ -6,13 +6,13 @@ A design concept for the new actualiseai.com.au, with the proposed brand identit
 
 ## Pages
 
-- `/` — the homepage, using the current site's copy. It opens on a live 3D city of cubes; the intro has a street-level view driving the city's main avenue. Services are two: AI training and AI strategy (with consulting inside it). The page adds an AI readiness check, a how-it-works strip, a gallery and questions, all aimed at a soft first step rather than a hard sell.
+- `/` — the homepage, using the current site's copy. It opens on a live 3D city of cubes that slowly rebuilds itself; the intro has a street-level view driving the city's main avenue. Services are two: AI training and AI strategy (with consulting inside it). The page adds an AI readiness check, a how-it-works strip, a gallery and questions, all aimed at a soft first step rather than a hard sell.
 - `/identity/` — the Actus brand identity: idea, symbol, logo rules, colour concepts, type, graphic language, motion, examples in use and next steps.
 - `/lab/city/` and `/lab/word/` — test pages for the city and for the earlier 3D wordmark. Not in the menu.
 
 ## Using it
 
-- The header switches between three themes and two modes. Themes: Classic (ink and white), Pop Punk (cobalt with a zest of acid: professional, young at heart) and Punk (modern punk, with glitch and slam-in motion). Modes: Dark and Light. Dark Classic is the default. The choice carries across pages.
+- The header switches between three themes and two modes. Themes: Classic (ink and white), Brutalism (professional brutalism: visible structure, link blue, instant interaction, nothing extra) and Punk (brutal structure with one wild gesture, acid and black). Modes: Dark and Light. Dark Classic is the default. The choice carries across pages, and the navigation bar changes with the theme.
 - The video card at the bottom right is a scripted demo of an AI front desk, in the style of tools like Hello Gubby. Replies are scripted and nothing is sent.
 - The opening sequence (the AI mark, then the wordmark) plays once per visit. Click or press Esc to skip.
 - Forms are not connected: submitting shows a note and sends nothing.

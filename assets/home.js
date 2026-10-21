@@ -46,6 +46,8 @@
   var fine = matchMedia('(pointer: fine)').matches;
   if (reduce) { root.classList.add('no-motion'); return; }
   var lerp = function (a, b, t) { return a + (b - a) * t; };
+  // Brutalism is still by design: nothing follows the cursor, the marquee stands, the stories don't pin
+  var brutal = function () { return root.dataset.concept === 'cobalt'; };
   var clamp = function (v, a, b) { return Math.max(a, Math.min(b, v)); };
   var mouse = { x: innerWidth / 2, y: innerHeight / 2, vx: 0, t: 0 };
   addEventListener('pointermove', function (e) {
@@ -89,7 +91,7 @@
     boost = clamp(boost + Math.abs(dy) * 0.06, 0, 14);
   }, { passive: true });
   function marquee() {
-    if (!mq) return;
+    if (!mq || brutal()) return;
     boost *= 0.92;
     var c = root.dataset.concept, lean = c === 'cobalt' || c === 'punk' ? clamp(boost * dir * 1.1, -12, 12) : 0;
     mqs.forEach(function (m) {
@@ -130,6 +132,7 @@
   // ---- magnetic buttons
   if (fine) document.querySelectorAll('.mag').forEach(function (b) {
     b.addEventListener('pointermove', function (e) {
+      if (brutal()) { b.style.transform = ''; return; }
       var r = b.getBoundingClientRect();
       b.style.transform = 'translate(' + ((e.clientX - r.left - r.width / 2) * 0.28).toFixed(1) + 'px,' + ((e.clientY - r.top - r.height / 2) * 0.4).toFixed(1) + 'px)';
     });
@@ -139,6 +142,7 @@
   // ---- bento tilt and glare
   if (fine) document.querySelectorAll('[data-tilt]').forEach(function (c) {
     c.addEventListener('pointermove', function (e) {
+      if (brutal()) return;
       var r = c.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
       c.style.setProperty('--rx', ((0.5 - py) * 7).toFixed(2) + 'deg'); c.style.setProperty('--ry', ((px - 0.5) * 9).toFixed(2) + 'deg');
       c.style.setProperty('--gx', (px * 100).toFixed(1) + '%'); c.style.setProperty('--gy', (py * 100).toFixed(1) + '%');
@@ -176,19 +180,24 @@
     gsap.fromTo('.intro-img .photo, .intro-img .render', { clipPath: 'inset(10% 16% 10% 16%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: { trigger: '.intro-img', start: 'top 95%', end: 'center 55%', scrub: true } });
     gsap.fromTo('.intro-img img', { yPercent: -7 }, { yPercent: 7, ease: 'none', scrollTrigger: { trigger: '.intro-img', start: 'top bottom', end: 'bottom top', scrub: true } });
     gsap.fromTo('.timor-img img', { scale: 1.22 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: '.timor', start: 'top bottom', end: 'bottom top', scrub: true } });
-    ScrollTrigger.matchMedia({
-      '(min-width: 901px)': function () {
-        var st = document.querySelector('.stories'), track = document.querySelector('.st-track');
-        if (!st || !track) return;
-        st.classList.add('pin-on');
+    // the stories pin and travel sideways on wide screens, except in Brutalism, where they are a plain list
+    var stEl = document.querySelector('.stories'), track = document.querySelector('.st-track'), stTween = null, wide = matchMedia('(min-width: 901px)');
+    function stories() {
+      var want = !!(stEl && track) && wide.matches && !brutal();
+      if (want && !stTween) {
+        stEl.classList.add('pin-on');
         var dist = function () { return Math.max(0, track.scrollWidth - document.documentElement.clientWidth); };
-        gsap.to(track, { x: function () { return -dist(); }, ease: 'none', scrollTrigger: {
-          trigger: st, start: function () { return 'top ' + (document.querySelector('.top').offsetHeight); }, end: function () { return '+=' + dist(); },
-          pin: true, scrub: 0.6, invalidateOnRefresh: true, anticipatePin: 1,
-          onUpdate: function (self) { st.style.setProperty('--stp', self.progress.toFixed(4)); } } });
-        return function () { st.classList.remove('pin-on'); };
+        stTween = gsap.to(track, { x: function () { return -dist(); }, ease: 'none', scrollTrigger: {
+          trigger: stEl, start: function () { return 'top ' + (document.querySelector('.top').offsetHeight); }, end: function () { return '+=' + dist(); },
+          pin: true, scrub: 0.6, invalidateOnRefresh: true, anticipatePin: 1 } });
+        ScrollTrigger.refresh();
+      } else if (!want && stTween) {
+        stTween.scrollTrigger.kill(true); stTween.kill(); stTween = null;
+        gsap.set(track, { clearProps: 'transform' }); stEl.classList.remove('pin-on'); ScrollTrigger.refresh();
       }
-    });
+    }
+    stories(); wide.addEventListener('change', stories);
+    new MutationObserver(stories).observe(root, { attributes: true, attributeFilter: ['data-concept'] });
     addEventListener('load', function () { ScrollTrigger.refresh(); });
     // lazy photos and late fonts change the page height after load; re-measure so the pin starts where the stories really are
     if ('ResizeObserver' in window) {
