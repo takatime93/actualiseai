@@ -12,7 +12,7 @@ A design concept for the new actualiseai.com.au, with the proposed brand identit
 
 ## Using it
 
-- The header switches between two colour concepts (Ink and Cobalt) and three modes: Dark, Light and Punk (a modern punk treatment). Dark is the default. The choice carries across pages.
+- The header switches between three themes and two modes. Themes: Classic (ink and white), Pop Punk (cobalt with a zest of acid: professional, young at heart) and Punk (modern punk, with glitch and slam-in motion). Modes: Dark and Light. Dark Classic is the default. The choice carries across pages.
 - The video card at the bottom right is a scripted demo of an AI front desk, in the style of tools like Hello Gubby. Replies are scripted and nothing is sent.
 - The opening sequence (the AI mark, then the wordmark) plays once per visit. Click or press Esc to skip.
 - Forms are not connected: submitting shows a note and sends nothing.

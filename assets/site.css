@@ -1,11 +1,12 @@
 :root, :root[data-concept="ink"] { --bg: #111111; --fg: #FFFFFF; --raised: #18191D; --line: #2A2D33; --body: #C9CCD4; --mute: #9AA6C4; --accent: #D2DAEE; --pattern: #687699; --band: #23283A; --inv-bg: #F4F4F1; --inv-fg: #111111; color-scheme: dark }
 :root[data-concept="ink"][data-theme="light"], :root:not([data-concept])[data-theme="light"] { --bg: #F4F4F1; --fg: #111111; --raised: #FFFFFF; --line: #DADBD5; --body: #3A3E47; --mute: #5A6580; --accent: #46538A; --pattern: #9AA6C4; --band: #E3E6EC; --inv-bg: #111111; --inv-fg: #FFFFFF; color-scheme: light }
-:root[data-concept="ink"][data-theme="punk"], :root:not([data-concept])[data-theme="punk"] { --bg: #0B0B0B; --fg: #F4F4F0; --raised: #151515; --line: #3A3A3A; --body: #D6D6D0; --mute: #A3A39C; --accent: #C6FF00; --pattern: #2E2E2E; --band: #1A1A1A; --inv-bg: #111111; --inv-fg: #FFFFFF; color-scheme: dark }
 :root[data-concept="ink"] [data-for]:not([data-for="ink"]) { display: none !important }
-:root[data-concept="cobalt"] { --bg: #1C30D9; --fg: #FFFFFF; --raised: #2439E3; --line: #4A5BEC; --body: #DCE1FF; --mute: #B8C2FF; --accent: #E4E9FF; --pattern: #4A5DF2; --band: #2E43EA; --inv-bg: #FFFFFF; --inv-fg: #1C30D9; color-scheme: dark }
+:root[data-concept="cobalt"] { --bg: #1C30D9; --fg: #FFFFFF; --raised: #2439E3; --line: #4A5BEC; --body: #DCE1FF; --mute: #B8C2FF; --accent: #D4FF3F; --pattern: #4A5DF2; --band: #2E43EA; --inv-bg: #FFFFFF; --inv-fg: #1C30D9; color-scheme: dark }
 :root[data-concept="cobalt"][data-theme="light"] { --bg: #FFFFFF; --fg: #1C30D9; --raised: #F2F4FF; --line: #D6DCFF; --body: #2B3580; --mute: #5763B5; --accent: #1C30D9; --pattern: #B3BEFF; --band: #E9EDFF; --inv-bg: #1C30D9; --inv-fg: #FFFFFF; color-scheme: light }
-:root[data-concept="cobalt"][data-theme="punk"] { --bg: #1C30D9; --fg: #FFFFFF; --raised: #1626B8; --line: #5A69F0; --body: #E4E8FF; --mute: #BAC3FF; --accent: #E6FF00; --pattern: #3346E6; --band: #1729C4; --inv-bg: #1C30D9; --inv-fg: #FFFFFF; color-scheme: dark }
 :root[data-concept="cobalt"] [data-for]:not([data-for="cobalt"]) { display: none !important }
+:root[data-concept="punk"] { --bg: #0B0B0B; --fg: #F4F4F0; --raised: #151515; --line: #3A3A3A; --body: #D6D6D0; --mute: #A3A39C; --accent: #C6FF00; --pattern: #2E2E2E; --band: #1A1A1A; --inv-bg: #F4F4F0; --inv-fg: #0B0B0B; color-scheme: dark }
+:root[data-concept="punk"][data-theme="light"] { --bg: #F4F4F0; --fg: #0B0B0B; --raised: #FFFFFF; --line: #CFCFC8; --body: #2A2A2A; --mute: #5A5A55; --accent: #0B0B0B; --pattern: #DCDCD4; --band: #E8E8E0; --inv-bg: #0B0B0B; --inv-fg: #F4F4F0; color-scheme: light }
+:root[data-concept="punk"] [data-for]:not([data-for="punk"]) { display: none !important }
 /* Layout: a header with two primary pages and the display controls; content on the wordmark's 24-unit grid */
 :root {
   --sans: 'Work Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -61,7 +62,7 @@ svg.sym, svg.fld, svg.cs, svg.pat { width: 100%; height: auto }
 .ctl { display: flex; align-items: center; gap: 10px }
 .ctl-lab { font: 500 11px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--mute) }
 .seg { display: flex; border: 1px solid var(--line) }
-.seg button { display: flex; align-items: center; gap: 8px; font: 500 12px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); background: transparent; border: 0; padding: 9px 12px; cursor: pointer }
+.seg button { display: flex; align-items: center; gap: 8px; white-space: nowrap; font: 500 12px/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); background: transparent; border: 0; padding: 9px 12px; cursor: pointer }
 .seg button + button { border-left: 1px solid var(--line) }
 .seg button[aria-pressed="true"] { color: var(--bg); background: var(--fg) }
 .seg button:not([aria-pressed="true"]):hover { color: var(--fg) }
@@ -252,106 +253,179 @@ footer p { color: var(--mute); font-size: 15px; max-width: 56ch }
    Black ground, acid and hot pink as flat fills, hard edges and offset shadows, duotone flash photos,
    stickers and one marker scrawl. Borrowed method, not borrowed iconography. Body copy stays plain and level. */
 .punk-only { display: none !important }
-:root[data-theme="punk"] .punk-only { display: revert !important }
-:root[data-theme="punk"] { --hot: #FF2E88; --acid: var(--accent); --display: 'Anton', Impact, 'Arial Narrow', sans-serif; --type: 'Space Mono', ui-monospace, monospace; --marker: 'Permanent Marker', 'Comic Sans MS', cursive; --duo: #FF2E88 }
-:root[data-theme="punk"] html, :root[data-theme="punk"] body { overflow-x: clip }
+:root[data-concept="punk"] .punk-only { display: revert !important }
+:root[data-concept="punk"] { --hot: #FF2E88; --acid: #C6FF00; --display: 'Anton', Impact, 'Arial Narrow', sans-serif; --type: 'Space Mono', ui-monospace, monospace; --marker: 'Permanent Marker', 'Comic Sans MS', cursive; --duo: #FF2E88 }
+:root[data-concept="punk"] html, :root[data-concept="punk"] body { overflow-x: clip }
 /* a fine digital grain, not a photocopy */
-:root[data-theme="punk"] body::before { content: ""; position: fixed; inset: 0; z-index: 45; pointer-events: none; mix-blend-mode: overlay; opacity: .16; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") }
-@media (prefers-contrast: more) { :root[data-theme="punk"] body::before { display: none } }
+:root[data-concept="punk"] body::before { content: ""; position: fixed; inset: 0; z-index: 45; pointer-events: none; mix-blend-mode: overlay; opacity: .16; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.95' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") }
+@media (prefers-contrast: more) { :root[data-concept="punk"] body::before { display: none } }
 /* type: tall condensed caps with a pink offset; labels in a heavy mono */
-:root[data-theme="punk"] :is(h1, h2, .mega, h2.big, .svc-card h3, .steps h3, .bot h3, .g h3, .r-stage, .q-t, .timor-card h2, .gub-hello h3) { font-family: var(--display); font-weight: 400; text-transform: uppercase; letter-spacing: 0.005em; line-height: .95 }
-:root[data-theme="punk"] .mega { text-shadow: 0.03em 0.03em 0 var(--hot), -0.02em -0.015em 0 color-mix(in srgb, var(--acid) 70%, transparent) }
-:root[data-theme="punk"] h2 { text-shadow: 0.035em 0.035em 0 var(--hot) }
-:root[data-theme="punk"] :is(.lab, .num, .ctl-lab, .seg button, .btn, .index a, .display-btn, .opt-k, .pick span, .field label, fieldset.field legend) { font-family: var(--type); font-weight: 700; letter-spacing: 0.02em }
-:root[data-theme="punk"] .num { color: #0B0B0B; background: var(--acid); padding: .12em .35em; display: inline-block; rotate: -2deg }
+:root[data-concept="punk"] :is(h1, h2, .mega, h2.big, .svc-card h3, .steps h3, .bot h3, .g h3, .r-stage, .q-t, .timor-card h2, .gub-hello h3) { font-family: var(--display); font-weight: 400; text-transform: uppercase; letter-spacing: 0.005em; line-height: .95 }
+:root[data-concept="punk"] .mega { text-shadow: 0.03em 0.03em 0 var(--hot), -0.02em -0.015em 0 color-mix(in srgb, var(--acid) 70%, transparent) }
+:root[data-concept="punk"] h2 { text-shadow: 0.035em 0.035em 0 var(--hot) }
+:root[data-concept="punk"] :is(.lab, .num, .ctl-lab, .seg button, .btn, .index a, .display-btn, .opt-k, .pick span, .field label, fieldset.field legend) { font-family: var(--type); font-weight: 700; letter-spacing: 0.02em }
+:root[data-concept="punk"] .num { color: #0B0B0B; background: var(--acid); padding: .12em .35em; display: inline-block; rotate: -2deg }
 /* section labels: a slapped-on tag */
-:root[data-theme="punk"] .sl { display: inline-flex; width: fit-content; background: var(--fg); color: var(--bg); padding: 6px 12px 5px; rotate: -2deg; box-shadow: 4px 4px 0 var(--hot) }
-:root[data-theme="punk"] .sl .num { background: none; padding: 0; rotate: none; color: var(--hot) }
+:root[data-concept="punk"] .sl { display: inline-flex; width: fit-content; background: var(--fg); color: var(--bg); padding: 6px 12px 5px; rotate: -2deg; box-shadow: 4px 4px 0 var(--hot) }
+:root[data-concept="punk"] .sl .num { background: none; padding: 0; rotate: none; color: var(--hot) }
 /* header: a hard rule, no blur */
-:root[data-theme="punk"] .top { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom: 2px solid var(--fg) }
-:root[data-theme="punk"] .seg, :root[data-theme="punk"] .display-btn { border: 2px solid var(--fg) }
-:root[data-theme="punk"] .seg button + button { border-left: 2px solid var(--fg) }
-:root[data-theme="punk"] .seg button[aria-pressed="true"] { background: var(--acid); color: #0B0B0B }
-:root[data-theme="punk"] .primary a[aria-current="page"] { border-bottom-color: var(--acid); border-bottom-width: 3px }
+:root[data-concept="punk"] .top { background: var(--bg); backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom: 2px solid var(--fg) }
+:root[data-concept="punk"] .seg, :root[data-concept="punk"] .display-btn { border: 2px solid var(--fg) }
+:root[data-concept="punk"] .seg button + button { border-left: 2px solid var(--fg) }
+:root[data-concept="punk"] .seg button[aria-pressed="true"] { background: var(--acid); color: #0B0B0B }
+:root[data-concept="punk"] .primary a[aria-current="page"] { border-bottom-color: var(--acid); border-bottom-width: 3px }
 /* buttons: flat fills with a hard offset shadow */
-:root[data-theme="punk"] .btn { background: var(--acid); color: #0B0B0B; border: 2px solid var(--acid); box-shadow: 5px 5px 0 var(--hot) }
-:root[data-theme="punk"] .btn.ghost { background: transparent; color: var(--fg); border-color: var(--fg); box-shadow: 5px 5px 0 var(--fg) }
-:root[data-theme="punk"] .btn:hover { opacity: 1; box-shadow: 7px 7px 0 var(--hot); animation: jitter .5s steps(1, end) 2 }
-:root[data-theme="punk"] .btn.ghost:hover { box-shadow: 7px 7px 0 var(--acid); border-color: var(--acid) }
-:root[data-theme="punk"] .btn:active { box-shadow: 1px 1px 0 var(--hot); translate: 4px 4px }
+:root[data-concept="punk"] .btn { background: var(--acid); color: #0B0B0B; border: 2px solid var(--acid); box-shadow: 5px 5px 0 var(--hot) }
+:root[data-concept="punk"] .btn.ghost { background: transparent; color: var(--fg); border-color: var(--fg); box-shadow: 5px 5px 0 var(--fg) }
+:root[data-concept="punk"] .btn:hover { opacity: 1; box-shadow: 7px 7px 0 var(--hot); animation: jitter .5s steps(1, end) 2 }
+:root[data-concept="punk"] .btn.ghost:hover { box-shadow: 7px 7px 0 var(--acid); border-color: var(--acid) }
+:root[data-concept="punk"] .btn:active { box-shadow: 1px 1px 0 var(--hot); translate: 4px 4px }
 /* hard-edged cards, a touch askew; deterministic, never random per load */
-:root[data-theme="punk"] :is(.svc-card, .bot, .quiz, .timor-card, form.drop, .steps li) { border: 2px solid var(--fg); box-shadow: 8px 8px 0 var(--hot); background: var(--raised); --ground: var(--raised) }
-:root[data-theme="punk"] .svc-card { rotate: -0.6deg } :root[data-theme="punk"] .svc-card + .svc-card { rotate: 0.8deg; box-shadow: 8px 8px 0 var(--acid) }
-:root[data-theme="punk"] .svc-inc { background: var(--hot); color: #0B0B0B; border: 0; rotate: 4deg; font-family: var(--marker); font-size: 15px; font-weight: 400; letter-spacing: 0; text-transform: none; padding: 6px 12px }
-:root[data-theme="punk"] .svc-list li, :root[data-theme="punk"] .faq details, :root[data-theme="punk"] .leaders li { border-top: 2px solid var(--line) }
-:root[data-theme="punk"] .bot:nth-child(even) { box-shadow: 8px 8px 0 var(--acid) }
-:root[data-theme="punk"] .quiz { box-shadow: 8px 8px 0 var(--acid) }
-:root[data-theme="punk"] .opt { border: 2px solid var(--line) }
-:root[data-theme="punk"] .opt:hover { border-color: var(--fg); animation: jitter .5s steps(1, end) 1 }
-:root[data-theme="punk"] .opt:has(input:checked) { background: var(--acid); color: #0B0B0B; border-color: var(--acid) }
-:root[data-theme="punk"] .opt:has(input:checked) .opt-k { background: #0B0B0B; color: var(--acid) }
-:root[data-theme="punk"] .steps { border-top: 0; gap: 28px } :root[data-theme="punk"] .steps li { padding: 28px !important; border-right: 2px solid var(--fg) }
-:root[data-theme="punk"] .steps li:nth-child(2) { rotate: 1deg; box-shadow: 8px 8px 0 var(--acid) } :root[data-theme="punk"] .steps li:nth-child(3) { rotate: -0.8deg }
-:root[data-theme="punk"] .step-n { font-family: var(--display); font-weight: 400; color: var(--acid); -webkit-text-stroke: 0; text-shadow: 0.05em 0.04em 0 var(--hot) }
-:root[data-theme="punk"] .g-img { border: 2px solid var(--fg); box-shadow: 7px 7px 0 var(--hot) }
-:root[data-theme="punk"] .g:nth-child(even) .g-img { box-shadow: 7px 7px 0 var(--acid) }
-:root[data-theme="punk"] .st-svc { background: var(--acid); color: #0B0B0B; border: 0 }
-:root[data-theme="punk"] .st-sample { font-family: var(--marker); text-transform: none; letter-spacing: 0; font-size: 15px; font-weight: 400; color: var(--hot); rotate: -3deg; display: inline-block }
+:root[data-concept="punk"] :is(.svc-card, .bot, .quiz, .timor-card, form.drop, .steps li) { border: 2px solid var(--fg); box-shadow: 8px 8px 0 var(--hot); background: var(--raised); --ground: var(--raised) }
+:root[data-concept="punk"] .svc-card { rotate: -0.6deg } :root[data-concept="punk"] .svc-card + .svc-card { rotate: 0.8deg; box-shadow: 8px 8px 0 var(--acid) }
+:root[data-concept="punk"] .svc-inc { background: var(--hot); color: #0B0B0B; border: 0; rotate: 4deg; font-family: var(--marker); font-size: 15px; font-weight: 400; letter-spacing: 0; text-transform: none; padding: 6px 12px }
+:root[data-concept="punk"] .svc-list li, :root[data-concept="punk"] .faq details, :root[data-concept="punk"] .leaders li { border-top: 2px solid var(--line) }
+:root[data-concept="punk"] .bot:nth-child(even) { box-shadow: 8px 8px 0 var(--acid) }
+:root[data-concept="punk"] .quiz { box-shadow: 8px 8px 0 var(--acid) }
+:root[data-concept="punk"] .opt { border: 2px solid var(--line) }
+:root[data-concept="punk"] .opt:hover { border-color: var(--fg); animation: jitter .5s steps(1, end) 1 }
+:root[data-concept="punk"] .opt:has(input:checked) { background: var(--acid); color: #0B0B0B; border-color: var(--acid) }
+:root[data-concept="punk"] .opt:has(input:checked) .opt-k { background: #0B0B0B; color: var(--acid) }
+:root[data-concept="punk"] .steps { border-top: 0; gap: 28px } :root[data-concept="punk"] .steps li { padding: 28px !important; border-right: 2px solid var(--fg) }
+:root[data-concept="punk"] .steps li:nth-child(2) { rotate: 1deg; box-shadow: 8px 8px 0 var(--acid) } :root[data-concept="punk"] .steps li:nth-child(3) { rotate: -0.8deg }
+:root[data-concept="punk"] .step-n { font-family: var(--display); font-weight: 400; color: var(--acid); -webkit-text-stroke: 0; text-shadow: 0.05em 0.04em 0 var(--hot) }
+:root[data-concept="punk"] .g-img { border: 2px solid var(--fg); box-shadow: 7px 7px 0 var(--hot) }
+:root[data-concept="punk"] .g:nth-child(even) .g-img { box-shadow: 7px 7px 0 var(--acid) }
+:root[data-concept="punk"] .st-svc { background: var(--acid); color: #0B0B0B; border: 0 }
+:root[data-concept="punk"] .st-sample { font-family: var(--marker); text-transform: none; letter-spacing: 0; font-size: 15px; font-weight: 400; color: var(--hot); rotate: -3deg; display: inline-block }
 /* photos: high-contrast duotone, like flash shots on a gig poster; alternate pink and acid */
-:root[data-theme="punk"] .photo img { filter: grayscale(1) contrast(1.5) brightness(1.08) !important }
-:root[data-theme="punk"] .photo::after { opacity: .92 !important; background: var(--hot); mix-blend-mode: multiply }
-:root[data-theme="punk"] .photo.in-view::after { opacity: .82 !important }
-:root[data-theme="punk"] :is(.g:nth-child(even), .svc-card + .svc-card, .st-panel:nth-child(even), .bot:nth-child(4)) .photo::after { background: var(--acid) }
+:root[data-concept="punk"] .photo img { filter: grayscale(1) contrast(1.5) brightness(1.08) !important }
+:root[data-concept="punk"] .photo::after { opacity: .92 !important; background: var(--hot); mix-blend-mode: multiply }
+:root[data-concept="punk"] .photo.in-view::after { opacity: .82 !important }
+:root[data-concept="punk"] :is(.g:nth-child(even), .svc-card + .svc-card, .st-panel:nth-child(even), .bot:nth-child(4)) .photo::after { background: var(--acid) }
 /* the city: lit in acid, traffic in pink, with faint scanlines */
-:root[data-theme="punk"] .city-3d canvas, :root[data-theme="punk"] .road-view canvas, :root[data-theme="punk"] .orbit-view canvas { filter: contrast(1.15) saturate(1.2) }
-:root[data-theme="punk"] .city-3d::after, :root[data-theme="punk"] .road-view::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(0, 0, 0, .28) 3px 4px) }
-:root[data-theme="punk"] .road-view { border: 2px solid var(--fg); box-shadow: 9px 9px 0 var(--hot); rotate: 0.8deg }
+:root[data-concept="punk"] .city-3d canvas, :root[data-concept="punk"] .road-view canvas, :root[data-concept="punk"] .orbit-view canvas { filter: contrast(1.15) saturate(1.2) }
+:root[data-concept="punk"] .city-3d::after, :root[data-concept="punk"] .road-view::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: repeating-linear-gradient(to bottom, transparent 0 3px, rgba(0, 0, 0, .28) 3px 4px) }
+:root[data-concept="punk"] .road-view { border: 2px solid var(--fg); box-shadow: 9px 9px 0 var(--hot); rotate: 0.8deg }
 /* marquee: a strip of acid tape across the page */
-:root[data-theme="punk"] .marquee { background: var(--acid); border-block: 0; rotate: -1.5deg; width: 104%; margin: 26px 0 26px -2%; position: relative; z-index: 2; box-shadow: 0 6px 0 var(--hot) }
-:root[data-theme="punk"] .mq-set span { font-family: var(--display); font-weight: 400; text-transform: uppercase; letter-spacing: 0.01em; color: #0B0B0B }
-:root[data-theme="punk"] .mq-set span:nth-of-type(even) { color: transparent; -webkit-text-stroke: 1.5px #0B0B0B }
-:root[data-theme="punk"] .mq-set i { background: var(--hot); rotate: 12deg }
+:root[data-concept="punk"] .marquee { background: var(--acid); border-block: 0; rotate: -1.5deg; width: 104%; margin: 26px 0 26px -2%; position: relative; z-index: 2; box-shadow: 0 6px 0 var(--hot) }
+:root[data-concept="punk"] .mq-set span { font-family: var(--display); font-weight: 400; text-transform: uppercase; letter-spacing: 0.01em; color: #0B0B0B }
+:root[data-concept="punk"] .mq-set span:nth-of-type(even) { color: transparent; -webkit-text-stroke: 1.5px #0B0B0B }
+:root[data-concept="punk"] .mq-set i { background: var(--hot); rotate: 12deg }
 /* marker on key lines */
-:root[data-theme="punk"] h2.big { text-decoration: underline wavy var(--acid); text-decoration-thickness: .06em; text-underline-offset: .16em; text-decoration-skip-ink: none }
-:root[data-theme="punk"] :is(.svc-foot a, .r-link, .faq-side a) { text-decoration: none; padding-bottom: .25em; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M3 8 Q60 2 110 7 T197 5' stroke='%23FF2E88' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") bottom / 100% .5em no-repeat }
+:root[data-concept="punk"] h2.big { text-decoration: underline wavy var(--acid); text-decoration-thickness: .06em; text-underline-offset: .16em; text-decoration-skip-ink: none }
+:root[data-concept="punk"] :is(.svc-foot a, .r-link, .faq-side a) { text-decoration: none; padding-bottom: .25em; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'%3E%3Cpath d='M3 8 Q60 2 110 7 T197 5' stroke='%23FF2E88' stroke-width='5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") bottom / 100% .5em no-repeat }
 /* the hero, defaced: a struck-through hype line with the plain version scrawled over it */
 .detourn { position: relative; margin-bottom: 6px; font-size: clamp(16px, 1.6vw, 22px) }
 .detourn s { color: var(--mute); text-decoration: line-through .14em var(--hot) }
 .detourn span { position: absolute; left: clamp(140px, 22vw, 360px); top: -1.15em; font-family: var(--marker); color: var(--acid); font-size: 1.35em; rotate: -4deg; white-space: nowrap }
-.sticker { position: absolute; right: var(--gut); bottom: calc(100% + 24px); width: clamp(110px, 10vw, 150px); aspect-ratio: 1; border-radius: 50%; display: grid !important; place-items: center; text-align: center; padding: 16%; box-sizing: border-box; background: var(--hot); color: #0B0B0B; font: 400 clamp(15px, 1.35vw, 20px)/.95 var(--display); text-transform: uppercase; rotate: 10deg; box-shadow: 0 0 0 4px #0B0B0B, 0 0 0 7px var(--acid) }
-:root:not([data-theme="punk"]) .sticker { display: none !important }
-@media (max-width: 700px) { .sticker { width: 104px; font-size: 14px } .detourn span { left: 18%; font-size: 1.15em; top: -1.05em } }
+.sticker { position: absolute; right: var(--gut); bottom: calc(100% + 28px); display: block !important; padding: 10px 14px 9px; background: var(--hot); color: #0B0B0B; font: 400 clamp(16px, 1.4vw, 20px)/1 var(--display); text-transform: uppercase; rotate: 6deg; box-shadow: 4px 4px 0 var(--acid) }
+:root:not([data-concept="punk"]) .sticker { display: none !important }
+@media (max-width: 700px) { .sticker { font-size: 14px; right: 16px } .detourn { display: flex !important; flex-direction: column-reverse; gap: 2px } .detourn span { position: static; font-size: 1.15em; align-self: flex-start; margin-left: 8px } }
 /* cut-out headline: one per page, read out by its label, letters hidden from screen readers */
 .ransom { display: none }
-:root[data-theme="punk"] .has-ransom > .plain { display: none }
-:root[data-theme="punk"] .has-ransom > .ransom { display: inline }
+:root[data-concept="punk"] .has-ransom > .plain { display: none }
+:root[data-concept="punk"] .has-ransom > .ransom { display: inline }
 .ransom b { display: inline-block; padding: .04em .1em; margin: 0 .02em .08em; line-height: .95; font-weight: 400 }
 .ransom .rw { display: inline-block; white-space: nowrap }
 .ransom .f0 { font-family: var(--display) } .ransom .f1 { font-family: var(--type); font-weight: 700 } .ransom .f2 { font-family: Georgia, serif; font-style: italic }
 .ransom .c0 { background: var(--fg); color: var(--bg) } .ransom .c1 { background: var(--hot); color: #0B0B0B }
 .ransom .c2 { background: transparent; color: var(--fg); outline: 2px solid var(--fg); outline-offset: -2px } .ransom .c3 { background: var(--acid); color: #0B0B0B; font-size: 1.1em }
 .ransom .r0 { rotate: -4deg } .ransom .r1 { rotate: 2deg; translate: 0 .05em } .ransom .r2 { rotate: -1deg } .ransom .r3 { rotate: 5deg }
-:root[data-theme="punk"] .has-ransom { text-shadow: none }
+:root[data-concept="punk"] .has-ransom { text-shadow: none }
 /* footer */
-:root[data-theme="punk"] .foot-wm { background: var(--fg) !important }
-:root[data-theme="punk"] .foot-hi { background: var(--hot) }
+:root[data-concept="punk"] .foot-wm { background: var(--fg) !important }
+:root[data-concept="punk"] .foot-hi { background: var(--hot) }
 .colophon { font-family: var(--marker) !important; color: var(--acid) !important; rotate: -2deg; font-size: 18px !important }
 /* the front desk: a sticker-framed screen */
-:root[data-theme="punk"] .gub-launch { border-radius: 0; border: 4px solid var(--acid); rotate: -3deg; box-shadow: 6px 6px 0 var(--hot) }
-:root[data-theme="punk"] .gub-panel { border-radius: 0; border: 2px solid var(--fg); box-shadow: 9px 9px 0 var(--hot) }
-:root[data-theme="punk"] .gub-status { background: var(--acid); color: #0B0B0B; border-radius: 0; rotate: -3deg; font-family: var(--type); font-weight: 700 }
-:root[data-theme="punk"] .gub-status i { background: #0B0B0B }
-:root[data-theme="punk"] .gub-pick, :root[data-theme="punk"] .gub-form, :root[data-theme="punk"] .gub-msg p, :root[data-theme="punk"] .gub-chip, :root[data-theme="punk"] .gub-msg.typing { border-radius: 0 }
-:root[data-theme="punk"] .gub-pick.chat { box-shadow: 4px 4px 0 var(--hot) }
-:root[data-theme="punk"] .gub-min { border-radius: 0; rotate: 4deg; background: var(--acid); color: #0B0B0B; box-shadow: 4px 4px 0 var(--hot) }
+:root[data-concept="punk"] .gub-launch { border-radius: 0; border: 4px solid var(--acid); rotate: -3deg; box-shadow: 6px 6px 0 var(--hot) }
+:root[data-concept="punk"] .gub-panel { border-radius: 0; border: 2px solid var(--fg); box-shadow: 9px 9px 0 var(--hot) }
+:root[data-concept="punk"] .gub-status { background: var(--acid); color: #0B0B0B; border-radius: 0; rotate: -3deg; font-family: var(--type); font-weight: 700 }
+:root[data-concept="punk"] .gub-status i { background: #0B0B0B }
+:root[data-concept="punk"] .gub-pick, :root[data-concept="punk"] .gub-form, :root[data-concept="punk"] .gub-msg p, :root[data-concept="punk"] .gub-chip, :root[data-concept="punk"] .gub-msg.typing { border-radius: 0 }
+:root[data-concept="punk"] .gub-pick.chat { box-shadow: 4px 4px 0 var(--hot) }
+:root[data-concept="punk"] .gub-min { border-radius: 0; rotate: 4deg; background: var(--acid); color: #0B0B0B; box-shadow: 4px 4px 0 var(--hot) }
 /* identity cover, in Punk */
-:root[data-theme="punk"] .cover-wm .wm { filter: drop-shadow(0.4vw 0.3vw 0 var(--hot)) }
+:root[data-concept="punk"] .cover-wm .wm { filter: drop-shadow(0.4vw 0.3vw 0 var(--hot)) }
 /* motion: stepped, at about six frames a second, and only briefly */
 @keyframes jitter { 0% { transform: translate(0, 0) rotate(-1deg) } 25% { transform: translate(1px, -1px) rotate(.5deg) } 50% { transform: translate(-1px, 1px) rotate(-.3deg) } 75% { transform: translate(1px, 1px) rotate(.8deg) } 100% { transform: none } }
+/* Punk in light mode: paper ground; acid stays a fill, never text */
+:root[data-concept="punk"][data-theme="light"] .mega { text-shadow: 0.035em 0.03em 0 var(--hot) }
+:root[data-concept="punk"][data-theme="light"] :is(.detourn span, .colophon, .st-sample) { color: #D1006A !important }
+:root[data-concept="punk"][data-theme="light"] .step-n { color: var(--fg) }
+:root[data-concept="punk"][data-theme="light"] h2.big { text-decoration-color: var(--hot) }
+:root[data-concept="punk"][data-theme="light"] .btn.ghost:hover { border-color: var(--fg) }
+:root[data-concept="punk"][data-theme="light"] .sl { box-shadow: 4px 4px 0 var(--acid) }
+/* Punk motion: stepped and futuristic. Headlines glitch in short bursts, things slam in as they arrive,
+   a scan line sweeps the hero, labels decode. Bursts are brief and small, well under three flashes a second. */
+:root[data-concept="punk"] .mega[data-text] { position: relative }
+:root[data-concept="punk"] .mega[data-text]::before, :root[data-concept="punk"] .mega[data-text]::after { content: attr(data-text); position: absolute; inset: 0; pointer-events: none; clip-path: inset(0 0 100% 0); text-shadow: none }
+:root[data-concept="punk"] .mega[data-text]::before { color: var(--hot); animation: glitch-a 5.2s steps(1, end) infinite 1.2s }
+:root[data-concept="punk"] .mega[data-text]::after { color: var(--acid); animation: glitch-b 5.2s steps(1, end) infinite 1.2s }
+@keyframes glitch-a { 0%, 86%, 100% { clip-path: inset(0 0 100% 0); transform: none } 87% { clip-path: inset(12% 0 62% 0); transform: translateX(-6px) } 89% { clip-path: inset(58% 0 18% 0); transform: translateX(8px) } 91% { clip-path: inset(30% 0 44% 0); transform: translateX(-3px) } 93% { clip-path: inset(0 0 100% 0) } }
+@keyframes glitch-b { 0%, 87%, 100% { clip-path: inset(0 0 100% 0); transform: none } 88% { clip-path: inset(66% 0 8% 0); transform: translateX(7px) } 90% { clip-path: inset(20% 0 60% 0); transform: translateX(-9px) } 92% { clip-path: inset(0 0 100% 0) } }
+/* the hero scan line */
+:root[data-concept="punk"] .city::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; z-index: 3; pointer-events: none; background: var(--acid); box-shadow: 0 0 18px 2px color-mix(in srgb, var(--acid) 60%, transparent); opacity: .55; animation: scan 7s linear infinite }
+@keyframes scan { 0% { transform: translateY(0); opacity: 0 } 6% { opacity: .55 } 60% { opacity: .55 } 70%, 100% { transform: translateY(calc(100svh - var(--hdr))); opacity: 0 } }
+/* arrivals: cards and headings slam in, stepped */
+.pk-ready :is(.sec h2, .svc-card, .bot, .steps li, .g, .quiz, .st-panel, .faq details, .leaders li):not(.pk-in) { opacity: 0 }
+.pk-ready .pk-in { animation: slam .42s steps(5, end) backwards }
+@keyframes slam { 0% { opacity: 0; transform: translateY(48px) scale(1.06) skewX(-6deg) } 40% { opacity: 1; transform: translateY(-6px) scale(1) skewX(3deg) } 70% { transform: translateY(2px) skewX(-1deg) } 100% { opacity: 1; transform: none } }
+/* the cursor becomes a crosshair */
+:root[data-concept="punk"] .cur-ring { border-radius: 0; rotate: 45deg; border-color: var(--acid); mix-blend-mode: normal }
+:root[data-concept="punk"] .cursor.big .cur-ring { background: var(--acid) }
+:root[data-concept="punk"] .cursor.link .cur-ring { rotate: 0deg; background: color-mix(in srgb, var(--hot) 35%, transparent); border-color: var(--hot) }
+/* photos split their channels on hover */
+:root[data-concept="punk"] :is(.svc-card, .g, .bot):hover .photo img { animation: rgb-split .5s steps(4, end) 1 }
+@keyframes rgb-split { 0% { transform: translate(0) } 25% { transform: translate(-4px, 1px); filter: grayscale(1) contrast(1.5) drop-shadow(6px 0 0 var(--acid)) } 50% { transform: translate(3px, -1px); filter: grayscale(1) contrast(1.5) drop-shadow(-6px 0 0 var(--hot)) } 75% { transform: translate(-1px, 0) } 100% { transform: none } }
+@media (prefers-reduced-motion: reduce) { .pk-ready :is(.sec h2, .svc-card, .bot, .steps li, .g, .quiz, .st-panel, .faq details, .leaders li):not(.pk-in) { opacity: 1 } }
 /* switching to Punk: one quick glitch of offset colour bands */
 .glitch { position: fixed; inset: 0; z-index: 120; pointer-events: none; background: repeating-linear-gradient(to bottom, rgba(255, 46, 136, .85) 0 14px, transparent 14px 46px, rgba(198, 255, 0, .8) 46px 54px, transparent 54px 110px); mix-blend-mode: hard-light; animation: glitch .36s steps(1, end) both }
 @keyframes glitch { 0% { transform: translateX(-4%); opacity: 1 } 20% { transform: translateX(3%) scaleY(1.6); opacity: .9 } 40% { transform: translateX(-2%) translateY(30px); opacity: 1 } 60% { transform: translateX(5%) scaleY(.6); opacity: .7 } 80% { transform: translateX(-1%) translateY(-20px); opacity: .5 } 100% { opacity: 0 } }
-@media (prefers-reduced-motion: reduce) { :root[data-theme="punk"] * { animation: none !important } .glitch { display: none } }
+@media (prefers-reduced-motion: reduce) { :root[data-concept="punk"] * { animation: none !important } .glitch { display: none } }
+
+/* ---------- Pop Punk (the Cobalt theme): professional, young at heart ----------
+   One confident blue with a zest of acid: pill buttons and tags, rounded cards that lift, a flat zest marquee.
+   No defacing, no cut-outs: the energy is in colour and shape, so a large organisation can stand behind it. */
+:root[data-concept="cobalt"] { --zest: #D4FF3F; --deep: #0B1A8C }
+:root[data-concept="cobalt"] .sl { display: inline-flex; width: fit-content; background: var(--zest); color: var(--deep); padding: 7px 14px; border-radius: 999px }
+:root[data-concept="cobalt"] .sl .num { color: var(--deep) }
+:root[data-concept="cobalt"] .btn { border-radius: 999px; background: var(--zest); color: var(--deep); border-color: var(--zest); transition: transform .5s cubic-bezier(.2, .8, .2, 1), box-shadow .3s, background-color .3s }
+:root[data-concept="cobalt"] .btn:hover { opacity: 1; box-shadow: 4px 4px 0 var(--fg) }
+:root[data-concept="cobalt"] .btn.ghost { background: transparent; color: var(--fg); border: 1.5px solid var(--fg) }
+:root[data-concept="cobalt"] .btn.ghost:hover { background: var(--fg); color: var(--bg); box-shadow: none }
+:root[data-concept="cobalt"] :is(.svc-card, .bot, .quiz, form.drop, .timor-card, .road-view, .g-img, .orbit-view) { border-radius: 22px; overflow: hidden }
+:root[data-concept="cobalt"] :is(.svc-card, .quiz, form.drop) { transition: transform .45s cubic-bezier(.2, .8, .2, 1), box-shadow .45s cubic-bezier(.2, .8, .2, 1), border-color .3s }
+:root[data-concept="cobalt"] :is(.svc-card, form.drop):hover { transform: translateY(-4px); box-shadow: 8px 8px 0 var(--zest); border-color: var(--zest) }
+:root[data-concept="cobalt"] .bot:hover { box-shadow: 8px 8px 0 var(--zest) }
+:root[data-concept="cobalt"] .svc-inc { background: var(--zest); color: var(--deep); border: 0; border-radius: 999px }
+:root[data-concept="cobalt"] .opt { border-radius: 14px }
+:root[data-concept="cobalt"] .opt-k { border-radius: 50% }
+:root[data-concept="cobalt"] .opt:has(input:checked) { background: var(--zest); color: var(--deep); border-color: var(--zest) }
+:root[data-concept="cobalt"] .opt:has(input:checked) .opt-k { background: var(--deep); color: var(--zest); border-color: var(--deep) }
+:root[data-concept="cobalt"] .st-svc { background: var(--zest); color: var(--deep); border: 0; border-radius: 999px }
+:root[data-concept="cobalt"] .pick .seg { border-radius: 999px; overflow: hidden }
+:root[data-concept="cobalt"] .pick input:checked + span { background: var(--zest); color: var(--deep) }
+:root[data-concept="cobalt"] .marquee { background: var(--zest); border-block: 0 }
+:root[data-concept="cobalt"] .mq-set span { color: var(--deep) }
+:root[data-concept="cobalt"] .mq-set span:nth-of-type(even) { color: transparent; -webkit-text-stroke: 1.5px var(--deep) }
+:root[data-concept="cobalt"] .mq-set i { background: var(--deep); border-radius: 999px }
+:root[data-concept="cobalt"] .step-n { color: var(--zest); -webkit-text-stroke: 0 }
+:root[data-concept="cobalt"] .primary a[aria-current="page"] { border-bottom-color: transparent; background: var(--zest); color: var(--deep); border-radius: 999px }
+:root[data-concept="cobalt"] .seg { border-radius: 999px; overflow: hidden }
+:root[data-concept="cobalt"] .seg button[aria-pressed="true"] { background: var(--zest); color: var(--deep) }
+:root[data-concept="cobalt"] .display-btn { border-radius: 999px }
+:root[data-concept="cobalt"] :is(.svc-foot a, .r-link, .faq-side a) { text-decoration-color: var(--zest); text-decoration-thickness: 3px; text-underline-offset: 5px }
+:root[data-concept="cobalt"] .foot-hi { background: var(--zest) }
+:root[data-concept="cobalt"] .gub-launch { border-color: var(--zest) }
+:root[data-concept="cobalt"] .gub-pick.chat { border-color: var(--zest) }
+:root[data-concept="cobalt"] .gub-form button { background: var(--zest); color: var(--deep) }
+/* light: the blue is the ink, Zest stays a fill behind deep blue */
+:root[data-concept="cobalt"][data-theme="light"] .step-n { color: var(--fg) }
+:root[data-concept="cobalt"][data-theme="light"] :is(.svc-card, form.drop):hover { box-shadow: 8px 8px 0 var(--fg); border-color: var(--fg) }
+:root[data-concept="cobalt"][data-theme="light"] .bot:hover { box-shadow: 8px 8px 0 var(--fg) }
+:root[data-concept="cobalt"][data-theme="light"] :is(.svc-foot a, .r-link, .faq-side a) { text-decoration: none; background: linear-gradient(transparent 60%, var(--zest) 60%) }
+:root[data-concept="cobalt"][data-theme="light"] .btn:hover { box-shadow: 4px 4px 0 var(--fg) }
 
 /* page transition: the screen is wiped like a pass of the plough */
 @keyframes wipe-up { to { clip-path: inset(0 0 100% 0) } }
