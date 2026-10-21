@@ -4,12 +4,6 @@
   function store(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   var modes = document.querySelectorAll('[data-mode]');
   function paintMode() { var m = root.dataset.theme || 'dark'; modes.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.mode === m)); }); }
-  // switching to Punk glitches the screen once
-  function glitch() {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    var x = document.createElement('div'); x.className = 'glitch'; x.setAttribute('aria-hidden', 'true'); document.body.appendChild(x);
-    x.addEventListener('animationend', function () { x.remove(); });
-  }
   modes.forEach(function (b) { b.addEventListener('click', function () { root.dataset.theme = b.dataset.mode; store('aai-theme', b.dataset.mode); paintMode(); }); });
   paintMode();
   var disp = document.querySelector('.display'), dbtn = document.getElementById('display-btn');
@@ -22,7 +16,7 @@
   function paintConcept() { cbs.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.concept === root.dataset.concept)); }); }
   cbs.forEach(function (b) { b.addEventListener('click', function () {
     var was = root.dataset.concept; root.dataset.concept = b.dataset.concept; store('aai-concept', b.dataset.concept); paintConcept();
-    if (b.dataset.concept === 'punk') { if (window.aaiPunkFonts) aaiPunkFonts(); if (was !== 'punk') glitch(); }
+    if (b.dataset.concept === 'punk' && window.aaiPunkFonts) aaiPunkFonts();
   }); });
   paintConcept();
 
@@ -126,34 +120,17 @@
     sec.classList.add('playing'); s.replaceWith(c);
   });
 
-  // the Motion switch on the Punk hero turns the theme's motion off and on, and is remembered
-  document.querySelectorAll('[data-fx]').forEach(function (b) {
-    function paint() { var off = root.classList.contains('fx-off'); b.setAttribute('aria-pressed', String(!off)); b.textContent = off ? 'Motion off' : 'Motion on'; }
-    b.addEventListener('click', function () { root.classList.toggle('fx-off'); store('aai-fx', root.classList.contains('fx-off') ? 'off' : 'on'); paint(); dispatchEvent(new Event('aai-fx')); });
-    paint();
-  });
-
-  // Arrival motion for the two punk themes: Punk slams in and decodes its labels; Pop Punk glides. Off with reduced motion.
+  // Arrival motion for the two punk themes: Punk rises briefly, Pop Punk glides. Off with reduced motion.
   (function () {
     if (calm || !('IntersectionObserver' in window)) return;
     var SEL = '.sec h2, .svc-card, .bot, .steps li, .g, .quiz, .st-panel, .faq details, .leaders li', io = null, mode = '';
-    var GLYPHS = '█▓▒░<>/\|=+*#01';
-    function decode(el) {
-      var t = el.lastChild; if (!t || t.nodeType !== 3 || el.dataset.dec) return;
-      var fin = t.textContent, n = 0; el.dataset.dec = '1';
-      var iv = setInterval(function () {
-        n++; var k = Math.floor(fin.length * n / 12);
-        t.textContent = fin.slice(0, k) + fin.slice(k).replace(/\S/g, function () { return GLYPHS[Math.floor(Math.random() * GLYPHS.length)]; });
-        if (k >= fin.length) { clearInterval(iv); t.textContent = fin; }
-      }, 45);
-    }
     function on(m) {
       if (io && mode === m) return; off(); mode = m;
       root.classList.add(m === 'punk' ? 'pk-ready' : 'pp-ready');
       io = new IntersectionObserver(function (es) {
         es.forEach(function (e) {
           if (!e.isIntersecting) return; io.unobserve(e.target);
-          if (e.target.classList.contains('sl')) { if (mode === 'punk') decode(e.target); } else e.target.classList.add('pk-in');
+          if (!e.target.classList.contains('sl')) e.target.classList.add('pk-in');
         });
       }, { rootMargin: '0px 0px -8% 0px' });
       document.querySelectorAll(SEL + ', .sl').forEach(function (el) { io.observe(el); });
@@ -163,8 +140,8 @@
       document.querySelectorAll('.pk-in').forEach(function (el) { el.classList.remove('pk-in'); });
       document.querySelectorAll('[data-dec]').forEach(function (el) { delete el.dataset.dec; });
     }
-    function sync() { var c = root.dataset.concept; if ((c === 'punk' && !root.classList.contains('fx-off')) || c === 'cobalt') on(c); else off(); }
-    new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-concept'] }); addEventListener('aai-fx', sync); sync();
+    function sync() { var c = root.dataset.concept; if (c === 'punk' || c === 'cobalt') on(c); else off(); }
+    new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-concept'] }); sync();
   })();
 
   document.querySelectorAll('form[data-concept-form]').forEach(function (f) {

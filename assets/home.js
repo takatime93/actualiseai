@@ -127,16 +127,6 @@
     tick(); setInterval(tick, 20000);
   }
 
-  // ---- Punk: one beat for the whole interface (100 BPM), and a short impact shake on hits
-  var punkFx = function () { return root.dataset.concept === 'punk' && !root.classList.contains('fx-off'); };
-  setInterval(function () { if (punkFx()) root.dataset.beat = root.dataset.beat === '1' ? '0' : '1'; else if (root.dataset.beat) delete root.dataset.beat; }, 600);
-  function hit(el) { if (!punkFx() || !el) return; el.classList.remove('hit'); void el.offsetWidth; el.classList.add('hit'); }
-  document.addEventListener('click', function (e) { var b = e.target.closest('.btn'); if (b) hit(b); });
-  document.addEventListener('change', function (e) { if (e.target.closest('.quiz')) hit(e.target.closest('.quiz')); });
-  document.addEventListener('animationend', function (e) { if (e.animationName === 'hit') e.target.classList.remove('hit'); });
-  function frame(now) { hero(now); marquee(); cursor(); requestAnimationFrame(frame); }
-  requestAnimationFrame(frame);
-
   // ---- magnetic buttons
   if (fine) document.querySelectorAll('.mag').forEach(function (b) {
     b.addEventListener('pointermove', function (e) {

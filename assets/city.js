@@ -276,7 +276,7 @@ function start() {
   }
   const treeColor = (cb, i, c) => cb[4] === 1 ? c.copy(pal.bark) : c.copy(pal.leaf).offsetHSL(((i * 37) % 11 - 5) * 0.006, 0, ((i * 53) % 9 - 4) * 0.02);
   function paint() {
-    // Punk is a night city: lit windows in acid, traffic in hot pink
+    // Punk: windows lit in acid; Pop Punk: windows and traffic in zest
     const punk = root.dataset.concept === 'punk', dark = root.dataset.theme !== 'light', cobalt = root.dataset.concept === 'cobalt';
     const fg = new THREE.Color(css('--fg')), bg = new THREE.Color(css('--bg')), acc = new THREE.Color(css('--accent'));
     const raised = new THREE.Color(css('--raised')), line = new THREE.Color(css('--line'));
@@ -302,7 +302,7 @@ function start() {
     markMesh.material.color.copy(fg).lerp(line, dark ? 0.55 : 0.4);
     posts.material.color.copy(line).lerp(fg, 0.3);
     heads.material.color.copy(dark ? warm : line);
-    cars.material.color.copy(punk ? new THREE.Color('#FF2E88') : cobalt ? new THREE.Color('#D4FF3F') : dark ? warm : fg);
+    cars.material.color.copy(punk ? fg.clone().lerp(bg, 0.1) : cobalt ? new THREE.Color('#D4FF3F') : dark ? warm : fg);
     boats.material.color.copy(fg).lerp(bg, 0.15);
     wingMat.color.copy(fg).lerp(bg, dark ? 0.1 : 0.2); wingMat.emissive.copy(fg).multiplyScalar(dark ? 0.25 : 0);
   }
@@ -541,7 +541,6 @@ function start() {
   }
   function living(now) {
     if (!live || !risen) return;
-    if (root.dataset.concept === 'punk' && root.classList.contains('fx-off')) return;
     if (!nextChange) { nextChange = now + 1800; nextWorks = now + 6000; }
     if (now > nextChange && changing.size < (small ? 2 : 3)) {
       const pick = lots.filter((l) => !l.ch && l.d < NV * 0.6);
