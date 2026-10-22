@@ -7,7 +7,7 @@ A design concept for the new actualiseai.com.au, with the proposed brand identit
 ## Pages
 
 - `/` — the homepage, using the current site's copy. It opens on a live 3D city of cubes that slowly rebuilds itself; the intro has a street-level view driving the city's main avenue. Services are two: AI training and AI strategy (with consulting inside it). The page adds an AI readiness check, a how-it-works strip, a gallery and questions, all aimed at a soft first step rather than a hard sell.
-- `/costs/` — what it costs to launch: the F37 Aria logo licence, hosting (Cloudflare Pages recommended), forms, domain, analytics and the optional AI front desk, with a first-year estimator. Prices live in `source/costs_data.py`.
+- `/costs/` — what it costs to launch: the F37 Aria Logo licence, three hosting packages (Essentials on Cloudflare, Professional on Netlify, Performance on Vercel) with pros, cons and ratings, and four alternatives to Hello Gubby for the AI assistant, with a first-year estimator. Prices live in `source/costs_data.py`.
 - `/identity/` — the Actus brand identity: idea, symbol, logo rules, colour concepts, type, graphic language, motion, examples in use and next steps.
 - `/lab/city/` and `/lab/word/` — test pages for the city and for the earlier 3D wordmark. Not in the menu.
 
