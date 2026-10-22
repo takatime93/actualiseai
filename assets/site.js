@@ -197,6 +197,51 @@
     addEventListener('resize', cap);
   });
 
+
+  // shareables: tabs, a name to try, the cards on the desk, the carousel; pieces draw when they come into view
+  document.querySelectorAll('[data-sh]').forEach(function (sh) {
+    root.classList.add('sh-js');
+    var tabs = sh.querySelectorAll('[data-tab]'), panels = sh.querySelectorAll('[data-panel]');
+    var seen = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { seen.unobserve(e.target); e.target.classList.add('on', 'playing'); } });
+    }, { threshold: 0.3 }) : null;
+    sh.querySelectorAll('.pc').forEach(function (p) { if (seen) seen.observe(p); else p.classList.add('on', 'playing'); });
+    tabs.forEach(function (t) { t.addEventListener('click', function () {
+      tabs.forEach(function (x) { x.setAttribute('aria-selected', String(x === t)); });
+      panels.forEach(function (p) { p.hidden = p.dataset.panel !== t.dataset.tab; });
+    }); });
+    sh.querySelector('.sh-tabs').addEventListener('keydown', function (e) {
+      var i = [].indexOf.call(tabs, document.activeElement); if (i < 0) return;
+      var j = e.key === 'ArrowRight' ? (i + 1) % tabs.length : e.key === 'ArrowLeft' ? (i - 1 + tabs.length) % tabs.length : -1;
+      if (j >= 0) { e.preventDefault(); tabs[j].focus(); tabs[j].click(); }
+    });
+    sh.querySelectorAll('[data-in]').forEach(function (inp) { inp.addEventListener('input', function () {
+      var v = inp.value.trim() || inp.defaultValue;
+      sh.querySelectorAll('[data-b="' + inp.dataset.in + '"]').forEach(function (el) { el.textContent = v; });
+    }); });
+    var desk = sh.querySelector('[data-desk]');
+    if (desk) {
+      function swap() { desk.classList.toggle('swap'); }
+      sh.querySelector('[data-swap]').addEventListener('click', swap);
+      desk.querySelectorAll('[data-cx]').forEach(function (c) { c.addEventListener('click', swap); });
+      var din = desk.querySelector('.desk-in');
+      desk.addEventListener('pointermove', function (e) {
+        if (calm || e.pointerType === 'touch') return;
+        var r = desk.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        din.style.setProperty('--rx', (8 - y * 10).toFixed(2) + 'deg'); din.style.setProperty('--ry', (-4 + x * 14).toFixed(2) + 'deg');
+      });
+      desk.addEventListener('pointerleave', function () { din.style.removeProperty('--rx'); din.style.removeProperty('--ry'); });
+    }
+    var car = sh.querySelector('[data-car]');
+    if (car) {
+      var tr = car.querySelector('.car-track'), at = car.querySelector('[data-car-at]'), n = tr.children.length;
+      function idx() { return Math.round(tr.scrollLeft / tr.clientWidth); }
+      function go(d) { tr.scrollTo({ left: Math.max(0, Math.min(n - 1, idx() + d)) * tr.clientWidth, behavior: calm ? 'auto' : 'smooth' }); }
+      car.querySelector('[data-car-prev]').addEventListener('click', function () { go(-1); });
+      car.querySelector('[data-car-next]').addEventListener('click', function () { go(1); });
+      tr.addEventListener('scroll', function () { at.textContent = (idx() + 1) + ' / ' + n; }, { passive: true });
+    }
+  });
   document.querySelectorAll('form[data-concept-form]').forEach(function (f) {
     f.addEventListener('submit', function (e) {
       e.preventDefault();
