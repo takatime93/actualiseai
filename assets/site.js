@@ -12,6 +12,12 @@
     document.addEventListener('click', function (e) { if (!disp.contains(e.target)) { disp.classList.remove('open'); dbtn.setAttribute('aria-expanded', 'false'); } });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { disp.classList.remove('open'); dbtn.setAttribute('aria-expanded', 'false'); } });
   }
+  document.querySelectorAll('.sub').forEach(function (sb) {
+    var btn = sb.querySelector('.sub-btn');
+    btn.addEventListener('click', function (e) { e.stopPropagation(); var o = sb.classList.toggle('open'); btn.setAttribute('aria-expanded', String(o)); });
+    document.addEventListener('click', function (e) { if (!sb.contains(e.target)) { sb.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); } });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { sb.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); } });
+  });
   var cbs = document.querySelectorAll('.concepts button');
   function paintConcept() { cbs.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.concept === root.dataset.concept)); }); }
   cbs.forEach(function (b) { b.addEventListener('click', function () {
@@ -151,6 +157,45 @@
     function sync() { if (root.dataset.concept === 'punk') on('punk'); else off(); }
     new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['data-concept'] }); sync();
   })();
+
+  // drawn wordmarks: play when they come into view; Replay plays the nearest one again
+  document.querySelectorAll('[data-wl-anim]').forEach(function (a) {
+    if (a.dataset.wlBound) return; a.dataset.wlBound = '1';
+    function play() { a.classList.remove('play', 'done'); void a.offsetWidth; a.classList.add('play'); }
+    a._play = play;
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es, o) { if (es[0].isIntersecting) { o.disconnect(); play(); } }, { threshold: 0.3 }).observe(a); else play();
+  });
+  document.querySelectorAll('[data-wl-replay]').forEach(function (b) {
+    var a = b.closest('section') && b.closest('section').querySelector('[data-wl-anim]');
+    if (a && a._play) b.addEventListener('click', a._play);
+  });
+
+  // identity pages: sections arrive as you scroll (not in Brutalism, which keeps still)
+  if (!calm && document.querySelector('.cover') && 'IntersectionObserver' in window) {
+    var rvs = document.querySelectorAll('.sec .head, .sec .note, .swatch, .ground, .post, .slide, .card, .steps li, .icon, .wl-letter, .tryon, .lang .panel, .pattern, .preview-shot');
+    root.classList.add('rv-on');
+    var rio = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); rio.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px' });
+    rvs.forEach(function (el, i) {
+      el.classList.add('rv');
+      var sib = el.parentElement ? [].indexOf.call(el.parentElement.children, el) : 0; el.style.setProperty('--rd', Math.min(sib, 6) * 70 + 'ms');
+      rio.observe(el);
+    });
+  }
+
+  // try it on: switch the ground behind the logos, and show the clear space
+  document.querySelectorAll('[data-tryon]').forEach(function (t) {
+    var stage = t.querySelector('[data-stage]'), chips = t.querySelectorAll('[data-bg]'), cs = t.querySelector('[data-cs]');
+    function cap() { t.querySelectorAll('.cs-box').forEach(function (b) { var el = b.firstElementChild; b.style.setProperty('--cap', Math.round(el.getBoundingClientRect().height * (el.classList.contains('sym') ? 0.25 : 0.9)) + 'px'); }); }
+    chips.forEach(function (c) { c.addEventListener('click', function () {
+      chips.forEach(function (x) { x.setAttribute('aria-pressed', String(x === c)); });
+      var photo = c.dataset.bg === 'photo';
+      stage.classList.toggle('photo', photo);
+      stage.style.backgroundColor = photo ? '#2b3440' : c.dataset.bg; stage.style.backgroundImage = photo ? 'url(' + t.dataset.photo + ')' : 'none';
+      stage.style.color = c.dataset.fg; stage.style.setProperty('--fg', c.dataset.fg);
+    }); });
+    cs.addEventListener('click', function () { cap(); var on = !t.classList.contains('show-cs'); t.classList.toggle('show-cs', on); cs.setAttribute('aria-pressed', String(on)); cs.textContent = on ? 'Hide clear space' : 'Show clear space'; });
+    addEventListener('resize', cap);
+  });
 
   document.querySelectorAll('form[data-concept-form]').forEach(function (f) {
     f.addEventListener('submit', function (e) {
