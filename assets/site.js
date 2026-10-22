@@ -198,7 +198,7 @@
   });
 
 
-  // shareables: tabs, a name to try, the cards on the desk, the carousel; pieces draw when they come into view
+  // shareables: tabs, a name to try, the colourways, the carousel; pieces draw when they come into view
   document.querySelectorAll('[data-sh]').forEach(function (sh) {
     root.classList.add('sh-js');
     var tabs = sh.querySelectorAll('[data-tab]'), panels = sh.querySelectorAll('[data-panel]');
@@ -219,19 +219,10 @@
       var v = inp.value.trim() || inp.defaultValue;
       sh.querySelectorAll('[data-b="' + inp.dataset.in + '"]').forEach(function (el) { el.textContent = v; });
     }); });
-    var desk = sh.querySelector('[data-desk]');
-    if (desk) {
-      function swap() { desk.classList.toggle('swap'); }
-      sh.querySelector('[data-swap]').addEventListener('click', swap);
-      desk.querySelectorAll('[data-cx]').forEach(function (c) { c.addEventListener('click', swap); });
-      var din = desk.querySelector('.desk-in');
-      desk.addEventListener('pointermove', function (e) {
-        if (calm || e.pointerType === 'touch') return;
-        var r = desk.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-        din.style.setProperty('--rx', (8 - y * 10).toFixed(2) + 'deg'); din.style.setProperty('--ry', (-4 + x * 14).toFixed(2) + 'deg');
-      });
-      desk.addEventListener('pointerleave', function () { din.style.removeProperty('--rx'); din.style.removeProperty('--ry'); });
-    }
+    var cws = sh.querySelectorAll('[data-cw]');
+    cws.forEach(function (b) { b.addEventListener('click', function () {
+      sh.dataset.cw = b.dataset.cw; cws.forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    }); });
     var car = sh.querySelector('[data-car]');
     if (car) {
       var tr = car.querySelector('.car-track'), at = car.querySelector('[data-car-at]'), n = tr.children.length;
