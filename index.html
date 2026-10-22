@@ -14,8 +14,8 @@
 <script>(function(){var r=document.documentElement;if(location.pathname.indexOf('/identity/')<0&&/^#(idea|symbol|logo|colour|language|motion|in-use|next)$/.test(location.hash)){location.replace('identity/'+location.hash);return}try{var c=localStorage.getItem('aai-concept'),t=localStorage.getItem('aai-theme');if(t==='punk'){c='punk';t='dark';localStorage.setItem('aai-concept',c);localStorage.setItem('aai-theme',t)}if(c&&/^(ink|cobalt|punk)$/.test(c))r.dataset.concept=c;if(t&&/^(dark|light)$/.test(t))r.dataset.theme=t}catch(e){}window.aaiFonts=function(c){var u={punk:'family=Archivo:wdth,wght@62..125,100..900',cobalt:'family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400'}[c];if(!u||document.getElementById('f-'+c))return;var l=document.createElement('link');l.id='f-'+c;l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?'+u+'&display=swap';document.head.appendChild(l)};aaiFonts(r.dataset.concept);if(!r.dataset.concept)r.dataset.concept='ink';r.classList.add('has-js');try{var ss=sessionStorage,rm=matchMedia('(prefers-reduced-motion: reduce)').matches;if(ss.getItem('aai-t')){ss.removeItem('aai-t');if(!rm)r.classList.add('arrive')}else if(!rm&&!ss.getItem('aai-seen')&&location.pathname.indexOf('/identity/')<0){r.classList.add('intro-on')}ss.setItem('aai-seen','1')}catch(e){}})();</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Work+Sans:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="assets/site.css?v=eef13a4e2b">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Work+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/site.css?v=b2dfff7bc2">
 <style>
 /* homepage: motion is the material. Everything below still reads with motion off. */
 .sl { display: flex; gap: 14px; align-items: baseline }
@@ -480,7 +480,7 @@ fieldset.field legend { font-family: var(--mono); font-size: 12px; letter-spacin
   </div>
 </footer>
 
-<script src="assets/site.js?v=eef13a4e2b"></script>
+<script src="assets/site.js?v=b2dfff7bc2"></script>
 <div class="gub" data-gub data-home="">
   <section class="gub-panel" id="gub-panel" role="dialog" aria-label="Chat with Sophie, Actualise’s AI assistant (demo)" hidden>
     <div class="gub-vid"><video class="gub-face" src="assets/frontdesk.mp4" poster="assets/frontdesk.jpg" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video>
@@ -505,10 +505,10 @@ fieldset.field legend { font-family: var(--mono); font-size: 12px; letter-spacin
   <button class="gub-launch" type="button" aria-expanded="false" aria-controls="gub-panel" aria-label="Chat now"><video class="gub-face" src="assets/frontdesk.mp4" poster="assets/frontdesk.jpg" muted loop playsinline autoplay preload="metadata" aria-hidden="true"></video><span class="gub-lcap">Chat now<small>Sophie · Actualise AI</small></span><i class="gub-live" aria-hidden="true"></i></button>
   <button class="gub-min" type="button" aria-label="Close the chat" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 </div>
-<script src="assets/chat.js?v=eef13a4e2b" defer></script>
+<script src="assets/chat.js?v=b2dfff7bc2" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-<script src="assets/home.js?v=eef13a4e2b" defer></script>
-<script type="module" src="assets/city.js?v=eef13a4e2b"></script>
+<script src="assets/home.js?v=b2dfff7bc2" defer></script>
+<script type="module" src="assets/city.js?v=b2dfff7bc2"></script>
 </body>
 </html>
