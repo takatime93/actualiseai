@@ -36,9 +36,11 @@ function start() {
 
   let s0 = 20261015;
   const rnd = () => ((s0 = (s0 * 1664525 + 1013904223) >>> 0) / 4294967296);
-  const N = small ? 54 : 108, H = N / 2, P = 9, V = 2, u = 1 / V;   // tiles; V cubes per tile
-  const BUDGET = small ? 15000 : 110000;                             // building cubes
-  const CORE = (small ? 54 : 72) * 0.27, NV = small ? 54 : 80;   // downtown keeps its size, the extra area is neighbourhoods; NV is what the cameras frame
+  // the city covers 25% less ground than it did (each side x sqrt(0.75)), and the cube budget shrinks with it, to keep it light in the browser
+  const AREA = 0.75, SIDE = Math.sqrt(AREA);
+  const N = 2 * Math.round((small ? 54 : 108) * SIDE / 2), H = N / 2, P = 9, V = 2, u = 1 / V;   // tiles; V cubes per tile
+  const BUDGET = Math.round(small ? 15000 : 110000 * AREA);         // building cubes (phones keep theirs: their lot count barely changes)
+  const CORE = (small ? 54 : 72) * 0.27, NV = Math.round((small ? 54 : 80) * SIDE);   // downtown keeps its size; NV is what the cameras frame, so the smaller city still fills the view
   const live = !reduce && !SHOT;                                     // blocks come down and new ones go up
   const kind = new Uint8Array(N * N);                               // 0 lot, 1 road, 2 water, 3 park
   const inMap = (x, z) => x >= -H && x < H && z >= -H && z < H;
@@ -54,8 +56,10 @@ function start() {
   // ---------- blocks and lots
   const lots = [], trees = [];
   const tree = (x, z, big) => trees.push([x, z, big]);
-  for (let bz = -H; bz < H; bz += P) for (let bx = -H; bx < H; bx += P) {
-    const x0 = bx + 2, z0 = bz + 2, x1 = Math.min(bx + P, H), z1 = Math.min(bz + P, H);
+  // blocks start on the road grid (every P tiles from 0), so the city can be any size; edge blocks are clipped to the map
+  const B0 = Math.floor(-H / P) * P;
+  for (let bz = B0; bz < H; bz += P) for (let bx = B0; bx < H; bx += P) {
+    const x0 = Math.max(bx + 2, -H), z0 = Math.max(bz + 2, -H), x1 = Math.min(bx + P, H), z1 = Math.min(bz + P, H);
     if (x1 - x0 < 2 || z1 - z0 < 2) continue;
     let water = 0; for (let z = z0; z < z1; z++) for (let x = x0; x < x1; x++) if (at(x, z) === 2) water++;
     const d = Math.hypot((x0 + x1) / 2, (z0 + z1) / 2);
@@ -132,6 +136,11 @@ function start() {
   // the really tall towers are held down: the two supertalls to 64%, the next tier to 80%
   const tops = lots.filter((l) => l.type !== 'low' && l.type !== 'court'), hmax = Math.max(...tops.map((l) => l.h));
   tops.forEach((l) => { if (l.h > hmax * 0.7) l.h *= 0.64; else if (l.h > hmax * 0.48) l.h *= 0.8; });
+  // and the skyline is capped 25% lower: heights above the midrise knee are compressed so the tallest ends at the cap,
+  // keeping every tower's order and the spread between them (no flat tops)
+  // (the tallest tower was 90 cubes on desktop and 75 on phones before this change; the cap is 75% of that)
+  const CAP = 0.75 * (small ? 75 : 90) / lo, hTop = Math.max(...lots.map((l) => l.h)), knee = Math.min(hTop, CAP) * 0.45;
+  if (hTop > CAP) { const squeeze = (CAP - knee) / (hTop - knee); lots.forEach((l) => { if (l.h > knee) l.h = knee + (l.h - knee) * squeeze; }); }
   const cubes = [];   // trees and embankments; the buildings live in per-lot runs of slots, set up below
   const lotCubes = lots.map((l) => { const out = []; shell(l, lo, out); return out; });
   const HMAX = Math.max(...lots.map((l) => l.h));
