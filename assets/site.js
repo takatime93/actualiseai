@@ -21,7 +21,7 @@
   var cbs = document.querySelectorAll('.concepts button');
   function paintConcept() { cbs.forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.concept === root.dataset.concept)); }); }
   cbs.forEach(function (b) { b.addEventListener('click', function () {
-    var was = root.dataset.concept; root.dataset.concept = b.dataset.concept; store('aai-concept', b.dataset.concept); paintConcept();
+    var was = root.dataset.concept; root.dataset.concept = b.dataset.concept; store('aai-concept-v2', b.dataset.concept); paintConcept();
     if (window.aaiFonts) aaiFonts(b.dataset.concept);
   }); });
   paintConcept();
