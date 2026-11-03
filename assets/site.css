@@ -264,12 +264,12 @@ footer p { color: var(--mute); font-size: 15px; max-width: 56ch }
 
 /* ---------- Punk: brutal structure, punk attitude, professional restraint ----------
    For corporate and government buyers: one wild gesture per screen, structure as the ornament,
-   colour as signal. Acid means "act here"; Rethink (pink) only ever strikes out the old way beside the new one. Nothing tilts.
+   colour as signal. Acid means "act here"; Flare (pink) only ever strikes out the old way beside the new one. Nothing tilts.
    Motion confirms a change and never performs: short reveals, no idle loops, no glitch. */
 .punk-only { display: none !important }
 :root[data-concept="punk"] .punk-only { display: revert !important }
-:root[data-concept="punk"] { --acid: #C6FF00; --rethink: #FF2E88; --display: 'Archivo', 'Arial Black', system-ui, sans-serif; --ease-b: cubic-bezier(.2, 0, 0, 1); --duo: #0B0B0A }
-:root[data-concept="punk"][data-theme="light"] { --rethink: #C2005A }
+:root[data-concept="punk"] { --acid: #C6FF00; --flare: #FF2E88; --display: 'Archivo', 'Arial Black', system-ui, sans-serif; --ease-b: cubic-bezier(.2, 0, 0, 1); --duo: #0B0B0A }
+:root[data-concept="punk"][data-theme="light"] { --flare: #C2005A }
 :root[data-concept="punk"] body { font-family: 'Archivo', var(--sans) }
 /* type: an expanded grotesk in capitals at extreme sizes, set flush left; mono for every label and figure */
 :root[data-concept="punk"] :is(h1, h2, .mega, h2.big, .svc-card h3, .r-stage h2) { font-family: var(--display); font-stretch: 125%; font-variation-settings: "wdth" 125; font-weight: 800; text-transform: uppercase; letter-spacing: -0.02em; line-height: .92 }
@@ -289,8 +289,8 @@ footer p { color: var(--mute); font-size: 15px; max-width: 56ch }
 :root[data-concept="punk"] .sl .num { color: var(--fg) }
 :root[data-concept="punk"] .num { color: var(--fg) }
 /* hard cuts: some sections flip to the other ground at a straight line */
-:root[data-concept="punk"]:not([data-theme="light"]) :is(#services, #how, #faq) { --bg: #F2F0E9; --fg: #0B0B0A; --raised: #FFFFFF; --line: #CFCCC2; --body: #2A2A27; --mute: #5F5D57; --accent: #0B0B0A; --rethink: #C2005A }
-:root[data-concept="punk"][data-theme="light"] :is(#services, #how, #faq) { --bg: #0B0B0A; --fg: #F2F0E9; --raised: #151513; --line: #2E2D2A; --body: #D9D7CF; --mute: #9A9890; --accent: #C6FF00; --rethink: #FF2E88 }
+:root[data-concept="punk"]:not([data-theme="light"]) :is(#services, #how, #faq) { --bg: #F2F0E9; --fg: #0B0B0A; --raised: #FFFFFF; --line: #CFCCC2; --body: #2A2A27; --mute: #5F5D57; --accent: #0B0B0A; --flare: #C2005A }
+:root[data-concept="punk"][data-theme="light"] :is(#services, #how, #faq) { --bg: #0B0B0A; --fg: #F2F0E9; --raised: #151513; --line: #2E2D2A; --body: #D9D7CF; --mute: #9A9890; --accent: #C6FF00; --flare: #FF2E88 }
 :root[data-concept="punk"] :is(#services, #how, #faq) { background: var(--bg); color: var(--fg); --ground: var(--bg) }
 /* the readiness check sits on one full-bleed acid band: the page's single colour block */
 :root[data-concept="punk"] #check { background: var(--acid); color: #0B0B0A; --ground: var(--acid); border-top-color: #0B0B0A }
@@ -344,11 +344,11 @@ footer p { color: var(--mute); font-size: 15px; max-width: 56ch }
 :root[data-concept="punk"] .mq-set span { font: 500 clamp(14px, 1.3vw, 18px)/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--fg) }
 :root[data-concept="punk"] .mq-set span:nth-of-type(even) { color: var(--fg); -webkit-text-stroke: 0 }
 :root[data-concept="punk"] .mq-set i { width: 8px; height: 8px; background: var(--acid) }
-/* the hero's one wild gesture: the old way struck through in Rethink pink, the new way beside it */
+/* the hero's one wild gesture: the old way struck through in Flare, the new way beside it */
 :root[data-concept="punk"] .detourn { display: block !important }
 .detourn { margin: 14px 0 4px; font: 500 clamp(15px, 1.4vw, 19px)/1.45 var(--mono); text-transform: uppercase; letter-spacing: .03em }
 /* the strike is drawn per line, so it still lands when the phrase wraps */
-.detourn s { text-decoration: none; color: var(--mute); background: linear-gradient(var(--rethink), var(--rethink)) no-repeat 0 56% / 100% 4px; -webkit-box-decoration-break: clone; box-decoration-break: clone; animation: strike .3s var(--ease-b) calc(var(--start, .15s) + .6s) both }
+.detourn s { text-decoration: none; color: var(--mute); background: linear-gradient(var(--flare), var(--flare)) no-repeat 0 56% / 100% 4px; -webkit-box-decoration-break: clone; box-decoration-break: clone; animation: strike .3s var(--ease-b) calc(var(--start, .15s) + .6s) both }
 .detourn span { display: inline-block; margin-left: 12px; color: var(--fg) }
 @keyframes strike { from { background-size: 0% 4px } to { background-size: 100% 4px } }
 .sticker { position: absolute; right: var(--gut); bottom: calc(100% + 24px); display: block !important; padding: 8px 12px; border: 2px solid var(--fg); background: var(--bg); color: var(--fg); font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase }
