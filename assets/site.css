@@ -23,7 +23,7 @@ ul, ol { padding: 0; list-style: none }
 img { max-width: 100% }
 [hidden] { display: none !important }
 .wrap { max-width: var(--max); margin: 0 auto; padding-inline: var(--gut) }
-.wm { display: block; aspect-ratio: 15.0943; background: var(--fg); -webkit-mask: url(wordmark.png) center / contain no-repeat; mask: url(wordmark.png) center / contain no-repeat; max-width: 100% }
+.wm { display: block; aspect-ratio: 15.6019; background: var(--fg); -webkit-mask: url(wordmark.svg) center / contain no-repeat; mask: url(wordmark.svg) center / contain no-repeat; max-width: 100% }
 .wm.inv { background: var(--inv-fg) }
 .lab { font-family: var(--mono); font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mute) }
 .num { font-family: var(--mono); font-size: 13px; color: var(--accent); font-variant-numeric: tabular-nums }
